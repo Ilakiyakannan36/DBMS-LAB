@@ -1,55 +1,34 @@
-mysql> use db;
+use db;
 Database changed
-mysql> CREATE TABLE Student (StudentID INT, Name VARCHAR(30), Age INT);
-Query OK, 0 rows affected (0.09 sec)
+***********Table creation************
 
-mysql> CREATE TABLE Courses (CourseID INT, CourseName VARCHAR(20));
-Query OK, 0 rows affected (0.09 sec)
+CREATE TABLE Student (StudentID INT, Name VARCHAR(30), Age INT);
 
-mysql> CREATE TABLE Enrollments (
-    ->     EnrollmentID INT,
-    ->     StudentID INT,
-    ->     CourseID INT,
-    ->     Grade VARCHAR(5)
-    -> );
-Query OK, 0 rows affected (0.11 sec)
 
-mysql> INSERT INTO Student VALUES (1, 'Alice', 20);
-Query OK, 1 row affected (0.02 sec)
+CREATE TABLE Courses (CourseID INT, CourseName VARCHAR(20));
 
-mysql> INSERT INTO Student VALUES (2, 'Bob', 22);
-Query OK, 1 row affected (0.02 sec)
 
-mysql> INSERT INTO Student VALUES (3, 'Charlie', 21);
-Query OK, 1 row affected (0.02 sec)
+CREATE TABLE Enrollments (EnrollmentID INT, StudentID INT,CourseID INT,Grade VARCHAR(5));
 
-mysql> 
-mysql> INSERT INTO Courses VALUES (1, 'Math');
-Query OK, 1 row affected (0.02 sec)
+*************Insert values************
 
-mysql> INSERT INTO Courses VALUES (2, 'English');
-Query OK, 1 row affected (0.02 sec)
+INSERT INTO Student VALUES (1, 'Alice', 20);
+INSERT INTO Student VALUES (2, 'Bob', 22);
+INSERT INTO Student VALUES (3, 'Charlie', 21);
 
-mysql> INSERT INTO Courses VALUES (3, 'History');
-Query OK, 1 row affected (0.02 sec)
+INSERT INTO Courses VALUES (1, 'Math');
+INSERT INTO Courses VALUES (2, 'English');
+INSERT INTO Courses VALUES (3, 'History');
 
-mysql> 
-mysql> INSERT INTO Enrollments VALUES (1, 1, 1, 'A');
-Query OK, 1 row affected (0.01 sec)
+INSERT INTO Enrollments VALUES (1, 1, 1, 'A');
+INSERT INTO Enrollments VALUES (2, 1, 2, 'B');
+INSERT INTO Enrollments VALUES (3, 2, 1, 'A-');
+INSERT INTO Enrollments VALUES (4, 3, 3, 'B+');
+INSERT INTO Enrollments VALUES (5, 3, 2, 'A');
 
-mysql> INSERT INTO Enrollments VALUES (2, 1, 2, 'B');
-Query OK, 1 row affected (0.01 sec)
+********INNER JOIN: Student's enrollments with course details*********
 
-mysql> INSERT INTO Enrollments VALUES (3, 2, 1, 'A-');
-Query OK, 1 row affected (0.02 sec)
-
-mysql> INSERT INTO Enrollments VALUES (4, 3, 3, 'B+');
-Query OK, 1 row affected (0.01 sec)
-
-mysql> INSERT INTO Enrollments VALUES (5, 3, 2, 'A');
-Query OK, 1 row affected (0.02 sec)
-
-mysql> SELECT Student.StudentID, Student.Name, Student.Age,
+SELECT Student.StudentID, Student.Name, Student.Age,
     ->        Courses.CourseID, Courses.CourseName, Enrollments.Grade
     -> FROM Student
     -> INNER JOIN Enrollments ON Student.StudentID = Enrollments.StudentID
@@ -65,11 +44,12 @@ mysql> SELECT Student.StudentID, Student.Name, Student.Age,
 +-----------+---------+------+----------+------------+-------+
 5 rows in set (0.00 sec)
 
-mysql> SELECT Student.StudentID, Student.Name, Student.Age,
-    ->        Courses.CourseID, Courses.CourseName, Enrollments.Grade
-    -> FROM Student
-    -> LEFT JOIN Enrollments ON Student.StudentID = Enrollments.StudentID
-    -> LEFT JOIN Courses ON Enrollments.CourseID = Courses.CourseID;
+*******LEFT JOIN: All students and their enrollments*******
+
+SELECT Student.StudentID, Student.Name, Student.Age,Courses.CourseID, Courses.CourseName, Enrollments.Grade
+FROM Student
+LEFT JOIN Enrollments ON Student.StudentID = Enrollments.StudentID
+LEFT JOIN Courses ON Enrollments.CourseID = Courses.CourseID;
 +-----------+---------+------+----------+------------+-------+
 | StudentID | Name    | Age  | CourseID | CourseName | Grade |
 +-----------+---------+------+----------+------------+-------+
@@ -81,11 +61,12 @@ mysql> SELECT Student.StudentID, Student.Name, Student.Age,
 +-----------+---------+------+----------+------------+-------+
 5 rows in set (0.00 sec)
 
-mysql> SELECT Student.StudentID, Student.Name, Student.Age,
-    ->        Courses.CourseID, Courses.CourseName, Enrollments.Grade
-    -> FROM Courses
-    -> RIGHT JOIN Enrollments ON Courses.CourseID = Enrollments.CourseID
-    -> RIGHT JOIN Student ON Enrollments.StudentID = Student.StudentID;
+******RIGHT JOIN: All courses/enrollments (including courses with none)*****
+
+SELECT Student.StudentID, Student.Name, Student.Age,Courses.CourseID, Courses.CourseName, Enrollments.Grade
+FROM Courses
+RIGHT JOIN Enrollments ON Courses.CourseID = Enrollments.CourseID
+RIGHT JOIN Student ON Enrollments.StudentID = Student.StudentID;
 +-----------+---------+------+----------+------------+-------+
 | StudentID | Name    | Age  | CourseID | CourseName | Grade |
 +-----------+---------+------+----------+------------+-------+
@@ -97,6 +78,6 @@ mysql> SELECT Student.StudentID, Student.Name, Student.Age,
 +-----------+---------+------+----------+------------+-------+
 5 rows in set (0.01 sec)
 
-mysql> 
+ 
 
 
