@@ -1,21 +1,18 @@
-mysql> CREATE TABLE customers (
-    ->     id INT PRIMARY KEY,
-    ->     name VARCHAR(50),
-    ->     address VARCHAR(100),
-    ->     salary DECIMAL(10,2)
-    -> );
-Query OK, 0 rows affected (0.10 sec)
+----------Sample table: customers(id, name, age, address, salary)----------
 
-mysql> INSERT INTO customers (id, name, address, salary) VALUES
+CREATE TABLE customers (id INT PRIMARY KEY,name VARCHAR(50),address VARCHAR(100),salary DECIMAL(10,2));
+
+
+INSERT INTO customers (id, name, address, salary) VALUES
     -> (1, 'John', 'New York', 5000.00),
     -> (2, 'Alice', 'Los Angeles', 6000.00),
     -> (3, 'Bob', 'Chicago', 4500.00),
     -> (4, 'David', 'Houston', 7000.00),
     -> (5, 'Emma', 'Boston', 5500.00);
-Query OK, 5 rows affected (0.01 sec)
+
 Records: 5  Duplicates: 0  Warnings: 0
 
-mysql> SELECT * FROM customers;
+SELECT * FROM customers;
 +----+-------+-------------+---------+
 | id | name  | address     | salary  |
 +----+-------+-------------+---------+
@@ -27,15 +24,15 @@ mysql> SELECT * FROM customers;
 +----+-------+-------------+---------+
 5 rows in set (0.00 sec)
 
-**************IMPLICIT CURSOR (MYSQL)**************
+----------IMPLICIT CURSOR (MYSQL)----------
 
-mysql> UPDATE customers
+UPDATE customers
     -> SET salary = salary + 500;
-Query OK, 5 rows affected (0.01 sec)
+
 Rows matched: 5  Changed: 5  Warnings: 0
 
-mysql> 
-mysql> SELECT ROW_COUNT() AS rows_updated;
+
+SELECT ROW_COUNT() AS rows_updated;
 +--------------+
 | rows_updated |
 +--------------+
@@ -43,11 +40,11 @@ mysql> SELECT ROW_COUNT() AS rows_updated;
 +--------------+
 1 row in set (0.00 sec)
 
-**************EXPLICIT CURSOR (MYSQL)**************
+----------EXPLICIT CURSOR (MYSQL)----------
 
-mysql> DELIMITER //
-mysql> 
-mysql> CREATE PROCEDURE p()
+DELIMITER //
+
+CREATE PROCEDURE p()
     -> BEGIN
     ->     DECLARE done INT DEFAULT FALSE;
     ->     DECLARE c_id INT;
@@ -77,11 +74,11 @@ mysql> CREATE PROCEDURE p()
     ->     CLOSE cur;
     -> 
     -> END//
-Query OK, 0 rows affected (0.03 sec)
 
-mysql> 
-mysql> DELIMITER ;
-mysql> CALL p();
+
+
+DELIMITER ;
+CALL p();
 +------+------+---------+
 | ID   | Name | Salary  |
 +------+------+---------+
@@ -117,6 +114,6 @@ mysql> CALL p();
 +------+------+---------+
 1 row in set (0.00 sec)
 
-Query OK, 0 rows affected (0.00 sec)
+
 
 
