@@ -1,9 +1,9 @@
-mysql> use db;
-Reading table information for completion of table and column names
-You can turn off this feature to get a quicker startup with -A
-
+use db;
 Database changed
-mysql> select* from customers;
+
+-------------Retrieve the name and address of a customer and handle exceptions------------
+
+select* from customers;
 +----+-------+-------------+---------+
 | id | name  | address     | salary  |
 +----+-------+-------------+---------+
@@ -15,9 +15,13 @@ mysql> select* from customers;
 +----+-------+-------------+---------+
 5 rows in set (0.00 sec)
 
-mysql> DELIMITER //
-mysql> 
-mysql> CREATE PROCEDURE GetCustomer()
+
+------------------PREDEFINED EXCEPTION HANDLING--------------------
+---------------Procedure 1: GetCustomer()------------------
+
+DELIMITER //
+
+CREATE PROCEDURE GetCustomer()
     -> BEGIN
     ->     DECLARE c_id INT DEFAULT 5;
     ->     DECLARE c_name VARCHAR(100);
@@ -42,12 +46,12 @@ mysql> CREATE PROCEDURE GetCustomer()
     ->     SELECT CONCAT('Address: ', c_addr) AS Output;
     -> 
     -> END //
-Query OK, 0 rows affected (0.03 sec)
 
-mysql> 
-mysql> DELIMITER ;
-mysql> 
-mysql> CALL GetCustomer();
+-------------------Calling PROCEDURE 1---------------------
+
+DELIMITER ;
+
+CALL GetCustomer();
 +---------+
 | Message |
 +---------+
@@ -55,11 +59,12 @@ mysql> CALL GetCustomer();
 +---------+
 1 row in set (0.00 sec)
 
-Query OK, 0 rows affected (0.00 sec)
+DELIMITER //
 
-mysql> DELIMITER //
-mysql> 
-mysql> CREATE PROCEDURE CheckCustomer(IN cc_id INT)
+------------------BOTH PREDEFINED EXCEPTION & USER-DEFINED EXCEPTION HANDLING--------------------
+---------------Procedure 2: CheckCustomer()------------------
+
+CREATE PROCEDURE CheckCustomer(IN cc_id INT)
     -> BEGIN
     ->     DECLARE c_name VARCHAR(100);
     ->     DECLARE c_addr VARCHAR(255);
@@ -92,12 +97,13 @@ mysql> CREATE PROCEDURE CheckCustomer(IN cc_id INT)
     ->     END IF;
     -> 
     -> END //
-Query OK, 0 rows affected (0.02 sec)
 
-mysql> 
-mysql> DELIMITER ;
-mysql> 
-mysql> CALL CheckCustomer(5);
+
+DELIMITER ;
+
+-------------------Calling PROCEDURE 2---------------------
+
+CALL CheckCustomer(5);
 +------------+
 | Output     |
 +------------+
@@ -112,9 +118,9 @@ mysql> CALL CheckCustomer(5);
 +-----------------+
 1 row in set (0.00 sec)
 
-Query OK, 0 rows affected (0.00 sec)
 
-mysql> CALL CheckCustomer(5);
+
+CALL CheckCustomer(5);
 +------------+
 | Output     |
 +------------+
@@ -129,10 +135,8 @@ mysql> CALL CheckCustomer(5);
 +-----------------+
 1 row in set (0.00 sec)
 
-Query OK, 0 rows affected (0.00 sec)
 
-
-mysql> CALL GetCustomer();
+CALL GetCustomer();
 +---------+
 | Message |
 +---------+
@@ -140,5 +144,5 @@ mysql> CALL GetCustomer();
 +---------+
 1 row in set (0.01 sec)
 
-Query OK, 0 rows affected (0.01 sec)
+
 
