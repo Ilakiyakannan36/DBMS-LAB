@@ -1,7 +1,7 @@
 use db;
 Database changed
 
--------------Retrieve the name and address of a customers------------
+-------------Retrieve the name and address of a customer and handle exceptions------------
 
 select* from customers;
 +----+-------+-------------+---------+
@@ -61,8 +61,38 @@ CALL GetCustomer();
 
 DELIMITER //
 
+
+------------------USER-DEFINED EXCEPTION HANDLING--------------------
+---------------Procedure 2: CheckSalary()------------------
+
+DELIMITER //
+
+CREATE PROCEDURE CheckSalary(IN emp_salary DECIMAL(10,2))
+BEGIN
+    DECLARE invalid_salary CONDITION FOR SQLSTATE '45000';
+
+    IF emp_salary < 0 THEN
+        SIGNAL invalid_salary
+        SET MESSAGE_TEXT = 'Salary cannot be negative!';
+    ELSE
+        SELECT 'Valid Salary' AS Message;
+    END IF;
+END //
+
+DELIMITER ;
+
+-------------------Calling PROCEDURE 2---------------------
+
+CALL CheckSalary(5000);
+
++--------------+
+| Message      |
++--------------+
+| Valid Salary |
++--------------+
+
 ------------------BOTH PREDEFINED EXCEPTION & USER-DEFINED EXCEPTION HANDLING--------------------
----------------Procedure 2: CheckCustomer()------------------
+---------------Procedure 3: CheckCustomer()------------------
 
 CREATE PROCEDURE CheckCustomer(IN cc_id INT)
     -> BEGIN
@@ -101,7 +131,7 @@ CREATE PROCEDURE CheckCustomer(IN cc_id INT)
 
 DELIMITER ;
 
--------------------Calling PROCEDURE 2---------------------
+-------------------Calling PROCEDURE 3---------------------
 
 CALL CheckCustomer(5);
 +------------+
