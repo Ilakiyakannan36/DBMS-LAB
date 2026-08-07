@@ -1,7 +1,7 @@
 use db;
 Database changed
 
--------------Retrieve the name and address of a customer and handle exceptions------------
+-------------Retrieve the name and address of a customers------------
 
 select* from customers;
 +----+-------+-------------+---------+
