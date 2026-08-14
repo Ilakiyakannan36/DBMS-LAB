@@ -63,14 +63,18 @@ SELECT Name, Age FROM Students WHERE Age > 20;
 +---------+------+
 2 rows in set (0.00 sec)
 
-SELECT Name FROM Students
-    -> WHERE StudentID IN (
-    ->     SELECT StudentID FROM Enrollments
-    ->     WHERE CourseID = (
-    ->         SELECT CourseID FROM Courses
-    ->         WHERE CourseName = 'Database Management'
-    ->     )
-    -> );
+SELECT Name
+FROM Students
+WHERE StudentID IN (
+    SELECT StudentID
+    FROM Enrollments
+    WHERE CourseID = (
+        SELECT CourseID
+        FROM Courses
+        WHERE CourseName = 'Database Management'
+    )
+);
+
 +---------+
 | Name    |
 +---------+
