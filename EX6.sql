@@ -22,8 +22,8 @@ DELIMITER ;
 ----------EXECUTION & OUTPUT------------------
 
 UPDATE customer
-    -> SET stotal = 1000
-    -> WHERE sid = 3;
+SET stotal = 1000
+WHERE sid = 3;
 
 Rows matched: 1  Changed: 1  Warnings: 0
 
@@ -40,38 +40,34 @@ SELECT * FROM customer_update_log;
 -----------TRIGGER ON DELETE------------
 
 CREATE TABLE customer_delete_log (
-    ->     sid INT,
-    ->     sname VARCHAR(50),
-    ->     stotal INT,
-    ->     action VARCHAR(20),
-    ->     action_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    -> );
-
+    sid INT,
+    sname VARCHAR(50),
+    stotal INT,
+    action VARCHAR(20),
+    action_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 DELIMITER //
 
 CREATE TRIGGER del_classb
-    -> BEFORE DELETE ON customer
-    -> FOR EACH ROW
-    -> BEGIN
-    ->     INSERT INTO customer_delete_log
-    ->     VALUES (
-    ->         OLD.sid,
-    ->         OLD.sname,
-    ->         OLD.stotal,
-    ->         'DELETED',
-    ->         NOW()
-    ->     );
-    -> END//
-
-
+BEFORE DELETE ON customer
+FOR EACH ROW
+BEGIN
+    INSERT INTO customer_delete_log
+    VALUES (
+        OLD.sid,
+        OLD.sname,
+        OLD.stotal,
+        'DELETED',
+        NOW()
+    );
+END//
 
 DELIMITER ;
-
 ----------EXECUTION & OUTPUT------------------
 
 DELETE FROM customer
-    -> WHERE sid = 1;
+WHERE sid = 1;
 
 
 SELECT * FROM customer_delete_log;
@@ -85,34 +81,30 @@ SELECT * FROM customer_delete_log;
 -----------TRIGGER ON INSERT (Validation)------------
 
 CREATE TABLE classb (
-    ->     sid INT PRIMARY KEY,
-    ->     sname VARCHAR(50),
-    ->     sdept VARCHAR(20),
-    ->     stotal INT,
-    ->     grade CHAR(1)
-    -> );
-
+    sid INT PRIMARY KEY,
+    sname VARCHAR(50),
+    sdept VARCHAR(20),
+    stotal INT,
+    grade CHAR(1)
+);
 
 DELIMITER //
 
 CREATE TRIGGER ins_classb
-    -> BEFORE INSERT ON classb
-    -> FOR EACH ROW
-    -> BEGIN
-    ->     IF NEW.stotal > 1000 THEN
-    ->         SIGNAL SQLSTATE '45000'
-    ->         SET MESSAGE_TEXT = 'Total not valid';
-    ->     END IF;
-    -> END//
-
-
+BEFORE INSERT ON classb
+FOR EACH ROW
+BEGIN
+    IF NEW.stotal > 1000 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Total not valid';
+    END IF;
+END//
 
 DELIMITER ;
 
 ------------VALID AND INVALID INSERT & TESTING----------------
 
-INSERT INTO classb VALUES
-    -> (1, 'John', 'IT', 900, 'A');
+INSERT INTO classb VALUES (1, 'John', 'IT', 900, 'A');
 
 
 SELECT * FROM classb;
@@ -123,7 +115,6 @@ SELECT * FROM classb;
 +-----+-------+-------+--------+-------+
 1 row in set (0.00 sec)
 
-INSERT INTO classb VALUES
-    -> (2, 'Jana', 'IT', 20000, 'A');
+INSERT INTO classb VALUES (2, 'Jana', 'IT', 20000, 'A');
 ERROR 1644 (45000): Total not valid
 
