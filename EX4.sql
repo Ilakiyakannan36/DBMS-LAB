@@ -1,109 +1,62 @@
--- Sample Table: customers
-
 CREATE TABLE customers (
-    id INT PRIMARY KEY,
-    name VARCHAR(50),
+    id      INT PRIMARY KEY,
+    name    VARCHAR(50),
     address VARCHAR(100),
-    salary DECIMAL(10,2)
+    salary  DECIMAL(10,2)
 );
 
 INSERT INTO customers (id, name, address, salary) VALUES
-(1, 'John', 'New York', 5000.00),
+(1, 'John',  'New York',    5000.00),
 (2, 'Alice', 'Los Angeles', 6000.00),
-(3, 'Bob', 'Chicago', 4500.00),
-(4, 'David', 'Houston', 7000.00),
-(5, 'Emma', 'Boston', 5500.00);
+(3, 'Bob',   'Chicago',     4500.00),
+(4, 'David', 'Houston',     7000.00),
+(5, 'Emma',  'Boston',      5500.00);
 
-SELECT * FROM customers;
-Expected Output
-Customers Table
-+----+-------+-------------+---------+
-| id | name  | address     | salary  |
-+----+-------+-------------+---------+
-|  1 | John  | New York    | 5000.00 |
-|  2 | Alice | Los Angeles | 6000.00 |
-|  3 | Bob   | Chicago     | 4500.00 |
-|  4 | David | Houston     | 7000.00 |
-|  5 | Emma  | Boston      | 5500.00 |
-+----+-------+-------------+---------+
 
--- IMPLICIT CURSOR (MySQL)
+--IMPLICIT CURSOR
+SET SERVEROUTPUT ON;
 
-UPDATE customers
-SET salary = salary + 500;
-
-SELECT ROW_COUNT() AS rows_updated;
-Output
-+--------------+
-| rows_updated |
-+--------------+
-|            5 |
-+--------------+
-
--- EXPLICIT CURSOR (MySQL)
-
-DELIMITER //
-
-CREATE PROCEDURE p()
+DECLARE
+    total_rows NUMBER(2);
 BEGIN
-    DECLARE done INT DEFAULT FALSE;
-    DECLARE c_id INT;
-    DECLARE c_name VARCHAR(50);
-    DECLARE c_salary DECIMAL(10,2);
+    UPDATE customers
+    SET salary = salary + 500;
 
-    DECLARE cur CURSOR FOR
-        SELECT id, name, salary FROM customers;
+    IF SQL%NOTFOUND THEN
+        DBMS_OUTPUT.PUT_LINE('no customers selected');
+    ELSIF SQL%FOUND THEN
+        total_rows := SQL%ROWCOUNT;
+        DBMS_OUTPUT.PUT_LINE(total_rows || ' customers selected ');
+    END IF;
+END;
+/
 
-    DECLARE CONTINUE HANDLER FOR NOT FOUND
-        SET done = TRUE;
+5 customers selected
 
-    OPEN cur;
+PL/SQL procedure successfully completed.
 
-    read_loop: LOOP
-        FETCH cur INTO c_id, c_name, c_salary;
+-- EXPLICIT CURSOR
+DECLARE
+   c_id customers.id%TYPE;
+   c_name customers.name%TYPE;
+   c_addr customers.address%TYPE;
+   CURSOR c_customers IS
+      SELECT id, name, address FROM customers;
+BEGIN
+   OPEN c_customers;
+   LOOP
+      FETCH c_customers INTO c_id, c_name, c_addr;
+      EXIT WHEN c_customers%NOTFOUND;
+      DBMS_OUTPUT.PUT_LINE(c_id || ' ' || c_name || ' ' || c_addr);
+   END LOOP;
+   CLOSE c_customers;
+END;
+/
 
-        IF done THEN
-            LEAVE read_loop;
-        END IF;
-
-        SELECT
-            c_id AS ID,
-            c_name AS Name,
-            c_salary AS Salary;
-    END LOOP;
-
-    CLOSE cur;
-END//
-
-DELIMITER ;
-
-CALL p();
-+------+------+---------+
-| ID   | Name | Salary  |
-+------+------+---------+
-|    1 | John | 5500.00 |
-+------+------+---------+
-
-+------+-------+---------+
-| ID   | Name  | Salary  |
-+------+-------+---------+
-|    2 | Alice | 6500.00 |
-+------+-------+---------+
-
-+------+------+---------+
-| ID   | Name | Salary  |
-+------+------+---------+
-|    3 | Bob  | 5000.00 |
-+------+------+---------+
-
-+------+-------+---------+
-| ID   | Name  | Salary  |
-+------+-------+---------+
-|    4 | David | 7500.00 |
-+------+-------+---------+
-
-+------+------+---------+
-| ID   | Name | Salary  |
-+------+------+---------+
-|    5 | Emma | 6000.00 |
-+------+------+---------+
+ID | NAME  | ADDRESS
+---+-------+------------
+1  | John  | New York
+2  | Alice | Los Angeles
+3  | Bob   | Chicago
+4  | David | Houston
+5  | Emma  | Boston
