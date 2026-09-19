@@ -1,13 +1,13 @@
 -- Create Authors table
 CREATE TABLE Authors (
-    AuthorID INT PRIMARY KEY AUTO_INCREMENT,
+    AuthorID INT PRIMARY KEY IDENTITY(1,1),
     FirstName VARCHAR(50),
     LastName VARCHAR(50)
 );
 
 -- Create Books table
 CREATE TABLE Books (
-    BookID INT PRIMARY KEY AUTO_INCREMENT,
+    BookID INT PRIMARY KEY IDENTITY(1,1),
     Title VARCHAR(100),
     Genre VARCHAR(50),
     PublicationYear INT
@@ -24,7 +24,7 @@ CREATE TABLE BookAuthors (
 
 -- Create Borrowers table
 CREATE TABLE Borrowers (
-    BorrowerID INT PRIMARY KEY AUTO_INCREMENT,
+    BorrowerID INT PRIMARY KEY IDENTITY(1,1),
     FirstName VARCHAR(50),
     LastName VARCHAR(50),
     MembershipDate DATE
@@ -69,33 +69,50 @@ VALUES
 ('Jane', 'Smith', '2023-02-15');
 
 -- Insert values into BorrowedBooks
-INSERT INTO BorrowedBooks (BorrowerID, BookID, BorrowedDate, ReturnDate)
+INSERT INTO BorrowedBooks
+    (BorrowerID, BookID, BorrowedDate, ReturnDate)
 VALUES
-(1, 1, '2023-03-01', '2023-03-15'),
-(2, 3, '2023-03-05', '2023-03-20');
+    (1, 1, '2023-03-01', '2023-03-15'),
+    (2, 3, '2023-03-05', '2023-03-20');
 
--- Retrieve information
-SELECT
-    B.Title AS BookName,
-    CONCAT(A.FirstName, ' ', A.LastName) AS AuthorName,
-    CONCAT(BR.FirstName, ' ', BR.LastName) AS BorrowerName,
-    BB.BorrowedDate,
-    BB.ReturnDate
-FROM Books B
-JOIN BookAuthors BA
-    ON B.BookID = BA.BookID
-JOIN Authors A
-    ON BA.AuthorID = A.AuthorID
-LEFT JOIN BorrowedBooks BB
-    ON B.BookID = BB.BookID
-LEFT JOIN Borrowers BR
-    ON BB.BorrowerID = BR.BorrowerID;
+SELECT * FROM Authors;
+
+AuthorID | FirstName | LastName
+---------+-----------+----------
+1        | George    | Orwell
+2        | Aldous    | Huxley
+3        | J.K.      | Rowling
 
 
-Expected Output
+SELECT * FROM Books;
 
-| BookName                              | AuthorName    | BorrowerName | BorrowedDate | ReturnDate |
-| ------------------------------------- | ------------- | ------------ | ------------ | ---------- |
-| 1984                                  | George Orwell | John Doe     | 2023-03-01   | 2023-03-15 |
-| Brave New World                       | Aldous Huxley | NULL         | NULL         | NULL       |
-| Harry Potter and the Sorcerer's Stone | J.K. Rowling  | Jane Smith   | 2023-03-05   | 2023-03-20 |
+BookID | Title                                | Genre     | PublicationYear
+-------+--------------------------------------+-----------+----------------
+1      | 1984                                 | Dystopian | 1949
+2      | Brave New World                      | Dystopian | 1932
+3      | Harry Potter and the Sorcerer's Stone | Fantasy   | 1997
+
+
+SELECT * FROM BookAuthors;
+
+BookID | AuthorID
+-------+---------
+1      | 1
+2      | 2
+3      | 3
+
+
+SELECT * FROM Borrowers;
+
+BorrowerID | FirstName | LastName | MembershipDate
+-----------+-----------+----------+---------------
+1          | John      | Doe      | 2023-01-01
+2          | Jane      | Smith    | 2023-02-15
+
+
+SELECT * FROM BorrowedBooks;
+
+BorrowerID | BookID | BorrowedDate | ReturnDate
+-----------+--------+--------------+-----------
+1          | 1      | 2023-03-01   | 2023-03-15
+2          | 3      | 2023-03-05   | 2023-03-20
