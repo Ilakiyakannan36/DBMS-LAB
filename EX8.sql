@@ -1,9 +1,20 @@
 USE db;
+Database changed
 
--- Retrieve the name and address of a customer and handle exceptions
+CREATE TABLE customers (
+    id      NUMBER PRIMARY KEY,
+    name    VARCHAR2(50),
+    address VARCHAR2(100),
+    salary  NUMBER(10,2)
+);
+
+INSERT INTO customers (id, name, address, salary) VALUES (1, 'John', 'New York', 5500.00);
+INSERT INTO customers (id, name, address, salary) VALUES (2, 'Alice', 'Los Angeles', 6500.00);
+INSERT INTO customers (id, name, address, salary) VALUES (3, 'Bob', 'Chicago', 5000.00);
+INSERT INTO customers (id, name, address, salary) VALUES (4, 'David', 'Houston', 7500.00);
+INSERT INTO customers (id, name, address, salary) VALUES (5, 'Emma', 'Boston', 6000.00);
 
 SELECT * FROM customers;
-Expected Output
 Customers Table
 +----+-------+-------------+---------+
 | id | name  | address     | salary  |
@@ -16,135 +27,57 @@ Customers Table
 +----+-------+-------------+---------+
 
 -- PREDEFINED EXCEPTION HANDLING
--- Procedure 1: GetCustomer()
-
-DELIMITER //
-
-CREATE PROCEDURE GetCustomer()
+DECLARE
+    c_id   customers.id%TYPE := 5;
+    c_name customers.name%TYPE;
+    c_addr customers.address%TYPE;
 BEGIN
-    DECLARE c_id INT DEFAULT 5;
-    DECLARE c_name VARCHAR(100);
-    DECLARE c_addr VARCHAR(255);
-
-    DECLARE CONTINUE HANDLER FOR NOT FOUND
-    BEGIN
-        SELECT 'No such customer!' AS Message;
-    END;
-
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        SELECT 'Error!' AS Message;
-    END;
-
     SELECT name, address
-    INTO c_name, c_addr
-    FROM customer
-    WHERE id = c_id;
+    INTO   c_name, c_addr
+    FROM   customers
+    WHERE  id = c_id;
 
-    SELECT CONCAT('Name: ', c_name) AS Output;
-    SELECT CONCAT('Address: ', c_addr) AS Output;
-END//
+    DBMS_OUTPUT.PUT_LINE('Name: ' || c_name);
+    DBMS_OUTPUT.PUT_LINE('Address: ' || c_addr);
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('No such customer!');
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error!');
+END;
+/
 
-DELIMITER ;
-
--- Call Procedure 1
-
-CALL GetCustomer();
-Expected Output
-+---------+
-| Message |
-+---------+
-| Error!  |
-+---------+
+Enter value for c_id = 5
+Name: Emma
+Address: Boston
 
 -- USER-DEFINED EXCEPTION HANDLING
--- Procedure 2: CheckSalary()
-
-DELIMITER //
-
-CREATE PROCEDURE CheckSalary(IN emp_salary DECIMAL(10,2))
+DECLARE
+    c_id          customers.id%TYPE := 3;
+    c_name        customers.name%TYPE;
+    c_addr        customers.address%TYPE;
+    ex_invalid_id EXCEPTION;
 BEGIN
-    DECLARE invalid_salary CONDITION FOR SQLSTATE '45000';
-
-    IF emp_salary < 0 THEN
-        SIGNAL invalid_salary
-        SET MESSAGE_TEXT = 'Salary cannot be negative!';
+    IF c_id <= 0 THEN
+        RAISE ex_invalid_id;
     ELSE
-        SELECT 'Valid Salary' AS Message;
-    END IF;
-END//
-
-DELIMITER ;
-
--- Call Procedure 2
-
-CALL CheckSalary(5000);
-Expected Output
-+--------------+
-| Message      |
-+--------------+
-| Valid Salary |
-+--------------+
-
--- BOTH PREDEFINED AND USER-DEFINED EXCEPTION HANDLING
--- Procedure 3: CheckCustomer()
-
-DELIMITER //
-
-CREATE PROCEDURE CheckCustomer(IN cc_id INT)
-BEGIN
-    DECLARE c_name VARCHAR(100);
-    DECLARE c_addr VARCHAR(255);
-
-    DECLARE invalid_id CONDITION FOR SQLSTATE '45000';
-
-    DECLARE EXIT HANDLER FOR NOT FOUND
-    BEGIN
-        SELECT 'No such customer!' AS Message;
-    END;
-
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        SELECT 'Error!' AS Message;
-    END;
-
-    IF cc_id <= 0 THEN
-        SIGNAL invalid_id
-        SET MESSAGE_TEXT = 'ID must be greater than zero!';
-    ELSE
-
         SELECT name, address
-        INTO c_name, c_addr
-        FROM customers
-        WHERE id = cc_id;
+        INTO   c_name, c_addr
+        FROM   customers
+        WHERE  id = c_id;
 
-        SELECT CONCAT('Name: ', c_name) AS Output;
-        SELECT CONCAT('Address: ', c_addr) AS Output;
-
+        DBMS_OUTPUT.PUT_LINE('Name: ' || c_name);
+        DBMS_OUTPUT.PUT_LINE('Address: ' || c_addr);
     END IF;
-END//
+EXCEPTION
+    WHEN ex_invalid_id THEN
+        DBMS_OUTPUT.PUT_LINE('ID must be greater than zero!');
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('No such customer!');
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error!');
+END;
+/
 
-DELIMITER ;
-
--- Call Procedure 3
-
-CALL CheckCustomer(5);
-+------------+
-| Output     |
-+------------+
-| Name: Emma |
-+------------+
-
-CALL CheckCustomer(5);
-+-----------------+
-| Output          |
-+-----------------+
-| Address: Boston |
-+-----------------+
-
-CALL GetCustomer();
-+---------+
-| Message |
-+---------+
-| Error!  |
-+---------+
+Enter value for c_id: -6 
+ID must be greater than zero!
