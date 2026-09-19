@@ -1,79 +1,52 @@
--- Sample Table: employee
+-- PROCEDURE
+SET SERVEROUTPUT ON;
 
-CREATE TABLE employee (
-    id INT PRIMARY KEY,
-    name VARCHAR(50),
-    salary INT
-);
-
-INSERT INTO employee VALUES
-(1, 'John', 5000),
-(2, 'Alice', 6000),
-(3, 'Bob', 4500);
-
-SELECT * FROM employee;
-Expected Output
-
-Employee Table
-
-+----+-------+--------+
-| id | name  | salary |
-+----+-------+--------+
-|  1 | John  |   5000 |
-|  2 | Alice |   6000 |
-|  3 | Bob   |   4500 |
-+----+-------+--------+
-
--- Create Procedure
-
-DELIMITER //
-
-CREATE PROCEDURE SumProcedure(IN a INT, IN b INT)
+CREATE OR REPLACE PROCEDURE Sum(a IN NUMBER, b IN NUMBER) IS
+   c NUMBER;
 BEGIN
-    DECLARE c INT;
+   c := a + b;
+   DBMS_OUTPUT.PUT_LINE('Sum of two nos= ' || c);
+END Sum;
+/
 
-    SET c = a + b;
-
-    SELECT CONCAT('Sum of two numbers = ', c) AS Result;
-END//
-
-DELIMITER ;
-
--- Call Procedure
-
-CALL SumProcedure(10, 20);
-Procedure Output
-
-+-------------------------+
-| Result                  |
-+-------------------------+
-| Sum of two numbers = 30 |
-+-------------------------+
-
--- Create Function
-
-DELIMITER //
-
-CREATE FUNCTION SumFunction(a INT, b INT)
-RETURNS INT
-DETERMINISTIC
+-- Calling the procedure
+SET SERVEROUTPUT ON;
+DECLARE
+   x NUMBER;
+   y NUMBER;
 BEGIN
-    DECLARE c INT;
+   x := &x;
+   y := &y;
+   Sum(x, y);
+END;
+/
+Sum of two nos = 30
 
-    SET c = a + b;
+-- FUNCTION
+SET SERVEROUTPUT ON;
 
-    RETURN c;
-END//
+CREATE OR REPLACE FUNCTION Sum(a IN NUMBER, b IN NUMBER) RETURN NUMBER IS
+   c NUMBER;
+BEGIN
+   c := a + b;
+   RETURN c;
+END;
+/
 
-DELIMITER ;
+-- Calling the function
+SET SERVEROUTPUT ON;
+DECLARE
+   no1 NUMBER;
+   no2 NUMBER;
+   result NUMBER;
+BEGIN
+   no1 := &no1;
+   no2 := &no2;
+   result := Sum(no1, no2);
+   DBMS_OUTPUT.PUT_LINE('Sum of two nos=' || result);
+END;
+/
 
--- Call Function
-
-SELECT SumFunction(5, 5) AS Result;
-Function Output
-
-+--------+
-| Result |
-+--------+
-|     10 |
-+--------+
+Enter value for no1:5
+Enter value for no2:5
+Sum of two nos = 10
