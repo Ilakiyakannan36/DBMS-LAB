@@ -2,6 +2,56 @@
    PERSONAL INFORMATION SYSTEM
    ========================================== */
 
+SET SERVEROUTPUT ON;
+SET LINESIZE 120;
+SET PAGESIZE 50;
+
+
+/* ==========================================
+   DROP OLD TABLES
+   ========================================== */
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE Employment CASCADE CONSTRAINTS';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE Education CASCADE CONSTRAINTS';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE Addresses CASCADE CONSTRAINTS';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE Persons CASCADE CONSTRAINTS';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+
+/* ==========================================
+   DROP OLD VIEW
+   ========================================== */
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP VIEW PersonDetails';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+
 /* ==========================================
    TABLE 1 : PERSONS
    ========================================== */
@@ -15,6 +65,7 @@ CREATE TABLE Persons (
     Phone VARCHAR2(15),
     Email VARCHAR2(100)
 );
+
 
 /* ==========================================
    TABLE 2 : ADDRESSES
@@ -32,6 +83,7 @@ CREATE TABLE Addresses (
     REFERENCES Persons(PersonID)
 );
 
+
 /* ==========================================
    TABLE 3 : EDUCATION
    ========================================== */
@@ -47,6 +99,7 @@ CREATE TABLE Education (
     REFERENCES Persons(PersonID)
 );
 
+
 /* ==========================================
    TABLE 4 : EMPLOYMENT
    ========================================== */
@@ -61,6 +114,7 @@ CREATE TABLE Employment (
     FOREIGN KEY(PersonID)
     REFERENCES Persons(PersonID)
 );
+
 
 /* ==========================================
    SAMPLE DATA
@@ -84,6 +138,7 @@ TO_DATE('10-01-1998','DD-MM-YYYY'),
 '9876543212',
 'rahul@gmail.com');
 
+
 INSERT INTO Addresses VALUES
 (1,1,'Anna Nagar','Chennai','Tamil Nadu','600040');
 
@@ -92,6 +147,7 @@ INSERT INTO Addresses VALUES
 
 INSERT INTO Addresses VALUES
 (3,3,'KK Nagar','Madurai','Tamil Nadu','625020');
+
 
 INSERT INTO Education VALUES
 (1,1,'B.E CSE','Anna University',2021);
@@ -102,6 +158,7 @@ INSERT INTO Education VALUES
 INSERT INTO Education VALUES
 (3,3,'MCA','Madurai Kamaraj University',2022);
 
+
 INSERT INTO Employment VALUES
 (1,1,'TCS','Software Engineer',45000);
 
@@ -111,11 +168,14 @@ INSERT INTO Employment VALUES
 INSERT INTO Employment VALUES
 (3,3,'Wipro','Developer',42000);
 
+COMMIT;
+
+
 /* ==========================================
    VIEW
    ========================================== */
 
-CREATE VIEW PersonDetails AS
+CREATE OR REPLACE VIEW PersonDetails AS
 SELECT
     p.PersonID,
     p.FirstName,
@@ -130,6 +190,7 @@ JOIN Education e
 ON p.PersonID = e.PersonID
 JOIN Employment em
 ON p.PersonID = em.PersonID;
+
 
 /* ==========================================
    PROCEDURE
@@ -156,6 +217,7 @@ BEGIN
 END;
 /
 
+
 /* ==========================================
    FUNCTION
    ========================================== */
@@ -177,6 +239,7 @@ BEGIN
 END;
 /
 
+
 /* ==========================================
    TRIGGER
    ========================================== */
@@ -194,47 +257,238 @@ BEGIN
 END;
 /
 
+
 /* ==========================================
-   QUERIES
+   QUERY 1 : DISPLAY ALL PERSONS
    ========================================== */
 
--- 1
 SELECT * FROM Persons;
 
--- 2
+/*
+OUTPUT:
+
+PERSONID FIRSTNAME LASTNAME   GENDER   DOB        PHONE       EMAIL
+-------- --------- ---------- -------- ---------- ----------- -------------------
+1        Arun      Kumar      Male     15-MAY-00  9876543210  arun@gmail.com
+2        Divya     Rani       Female   20-AUG-99  9876543211  divya@gmail.com
+3        Rahul     Sharma     Male     10-JAN-98  9876543212  rahul@gmail.com
+*/
+
+
+/* ==========================================
+   QUERY 2 : DISPLAY ALL ADDRESSES
+   ========================================== */
+
 SELECT * FROM Addresses;
 
--- 3
+/*
+OUTPUT:
+
+ADDRESSID PERSONID STREET       CITY       STATE         PINCODE
+--------- -------- ------------ ---------- ------------- -------
+1         1        Anna Nagar   Chennai    Tamil Nadu    600040
+2         2        RS Puram     Coimbatore Tamil Nadu    641002
+3         3        KK Nagar     Madurai    Tamil Nadu    625020
+*/
+
+
+/* ==========================================
+   QUERY 3 : DISPLAY ALL EDUCATION DETAILS
+   ========================================== */
+
 SELECT * FROM Education;
 
--- 4
+/*
+OUTPUT:
+
+EDUCATIONID PERSONID QUALIFICATION INSTITUTION
+----------- -------- ------------ -------------------------
+1           1        B.E CSE      Anna University
+2           2        B.Sc IT      Bharathiar University
+3           3        MCA          Madurai Kamaraj University
+
+YEAROFPASSING
+-------------
+2021
+2020
+2022
+*/
+
+
+/* ==========================================
+   QUERY 4 : DISPLAY ALL EMPLOYMENT DETAILS
+   ========================================== */
+
 SELECT * FROM Employment;
 
--- 5
+/*
+OUTPUT:
+
+EMPLOYEEID PERSONID COMPANYNAME DESIGNATION          SALARY
+---------- -------- ----------- -------------------- ------
+1          1        TCS         Software Engineer    45000
+2          2        Infosys     System Engineer      40000
+3          3        Wipro       Developer            42000
+*/
+
+
+/* ==========================================
+   QUERY 5 : DISPLAY NAME AND PHONE
+   ========================================== */
+
 SELECT FirstName, LastName, Phone
 FROM Persons;
 
--- 6
+/*
+OUTPUT:
+
+FIRSTNAME  LASTNAME  PHONE
+---------- --------- ----------
+Arun       Kumar     9876543210
+Divya      Rani      9876543211
+Rahul      Sharma    9876543212
+*/
+
+
+/* ==========================================
+   QUERY 6 : DISPLAY PERSON AND CITY
+   ========================================== */
+
 SELECT FirstName, City
 FROM Persons p
 JOIN Addresses a
 ON p.PersonID = a.PersonID;
 
--- 7
+/*
+OUTPUT:
+
+FIRSTNAME  CITY
+---------- ----------
+Arun       Chennai
+Divya      Coimbatore
+Rahul      Madurai
+*/
+
+
+/* ==========================================
+   QUERY 7 : DISPLAY PERSON AND QUALIFICATION
+   ========================================== */
+
 SELECT FirstName, Qualification
 FROM Persons p
 JOIN Education e
 ON p.PersonID = e.PersonID;
 
--- 8
+/*
+OUTPUT:
+
+FIRSTNAME  QUALIFICATION
+---------- ----------------
+Arun       B.E CSE
+Divya      B.Sc IT
+Rahul      MCA
+*/
+
+
+/* ==========================================
+   QUERY 8 : DISPLAY PERSON AND SALARY
+   ========================================== */
+
 SELECT FirstName, Salary
 FROM Persons p
 JOIN Employment e
 ON p.PersonID = e.PersonID;
 
--- 9
+/*
+OUTPUT:
+
+FIRSTNAME  SALARY
+---------- ------
+Arun       45000
+Divya      40000
+Rahul      42000
+*/
+
+
+/* ==========================================
+   QUERY 9 : CALL FUNCTION
+   ========================================== */
+
 SELECT GetSalary(1)
 FROM Dual;
 
--- 10
+/*
+OUTPUT:
+
+GETSALARY(1)
+------------
+45000
+*/
+
+
+/* ==========================================
+   QUERY 10 : DISPLAY PERSON DETAILS VIEW
+   ========================================== */
+
 SELECT * FROM PersonDetails;
+
+/*
+OUTPUT:
+
+PERSONID FIRSTNAME LASTNAME CITY       QUALIFICATION COMPANYNAME
+-------- --------- -------- ---------- ------------- -----------
+1        Arun      Kumar    Chennai    B.E CSE       TCS
+2        Divya     Rani     Coimbatore B.Sc IT       Infosys
+3        Rahul     Sharma   Madurai    MCA           Wipro
+*/
+
+
+/* ==========================================
+   PROCEDURE TEST
+   ========================================== */
+
+EXEC GetPersonInfo(1);
+
+/*
+OUTPUT:
+
+Arun Kumar
+*/
+
+
+/* ==========================================
+   TRIGGER TEST
+   ========================================== */
+
+/*
+The following statement tests the trigger.
+
+If salary is zero or negative, Oracle will display:
+
+ORA-20001: Salary must be greater than zero
+ORA-06512: at "SALARY_CHECK", line ...
+
+Do NOT execute this test if you do not want an error
+message in your final output.
+
+Example:
+
+INSERT INTO Employment
+VALUES (4,1,'ABC Company','Tester',0);
+*/
+
+
+/* ==========================================
+   FINAL TABLE VERIFICATION
+   ========================================== */
+
+SELECT * FROM Persons;
+SELECT * FROM Addresses;
+SELECT * FROM Education;
+SELECT * FROM Employment;
+SELECT * FROM PersonDetails;
+
+
+/* ==========================================
+   END OF PERSONAL INFORMATION SYSTEM
+   ========================================== */
