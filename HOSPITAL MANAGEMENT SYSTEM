@@ -1,0 +1,220 @@
+/* ==========================================
+   HOSPITAL MANAGEMENT SYSTEM
+   ========================================== */
+
+DROP DATABASE IF EXISTS HospitalDB;
+CREATE DATABASE HospitalDB;
+USE HospitalDB;
+
+/* ==========================================
+   TABLE 1 : DOCTORS
+   ========================================== */
+
+CREATE TABLE Doctors (
+    DoctorID INT PRIMARY KEY AUTO_INCREMENT,
+    DoctorName VARCHAR(100) NOT NULL,
+    Specialization VARCHAR(100),
+    Phone VARCHAR(15),
+    ExperienceYears INT
+);
+
+/* ==========================================
+   TABLE 2 : PATIENTS
+   ========================================== */
+
+CREATE TABLE Patients (
+    PatientID INT PRIMARY KEY AUTO_INCREMENT,
+    PatientName VARCHAR(100) NOT NULL,
+    Age INT,
+    Gender VARCHAR(10),
+    Phone VARCHAR(15),
+    Address VARCHAR(200)
+);
+
+/* ==========================================
+   TABLE 3 : APPOINTMENTS
+   ========================================== */
+
+CREATE TABLE Appointments (
+    AppointmentID INT PRIMARY KEY AUTO_INCREMENT,
+    PatientID INT,
+    DoctorID INT,
+    AppointmentDate DATE,
+    AppointmentTime TIME,
+    Status VARCHAR(20),
+    FOREIGN KEY (PatientID)
+    REFERENCES Patients(PatientID),
+    FOREIGN KEY (DoctorID)
+    REFERENCES Doctors(DoctorID)
+);
+
+/* ==========================================
+   TABLE 4 : BILLS
+   ========================================== */
+
+CREATE TABLE Bills (
+    BillID INT PRIMARY KEY AUTO_INCREMENT,
+    PatientID INT,
+    Amount DECIMAL(10,2),
+    BillDate DATE,
+    PaymentStatus VARCHAR(20),
+    FOREIGN KEY (PatientID)
+    REFERENCES Patients(PatientID)
+);
+
+/* ==========================================
+   SAMPLE DATA
+   ========================================== */
+
+INSERT INTO Doctors
+(DoctorName, Specialization, Phone, ExperienceYears)
+VALUES
+('Dr. Rajesh','Cardiology','9876543210',12),
+('Dr. Priya','Neurology','9876543211',8),
+('Dr. Kumar','Orthopedics','9876543212',10);
+
+INSERT INTO Patients
+(PatientName, Age, Gender, Phone, Address)
+VALUES
+('Arun',25,'Male','9001112221','Chennai'),
+('Divya',30,'Female','9001112222','Coimbatore'),
+('Rahul',40,'Male','9001112223','Madurai');
+
+INSERT INTO Appointments
+(PatientID, DoctorID, AppointmentDate, AppointmentTime, Status)
+VALUES
+(1,1,'2026-09-20','10:00:00','Completed'),
+(2,2,'2026-09-21','11:30:00','Scheduled'),
+(3,3,'2026-09-22','09:15:00','Completed');
+
+INSERT INTO Bills
+(PatientID, Amount, BillDate, PaymentStatus)
+VALUES
+(1,2500.00,'2026-09-20','Paid'),
+(2,4000.00,'2026-09-21','Pending'),
+(3,3500.00,'2026-09-22','Paid');
+
+/* ==========================================
+   VIEW
+   ========================================== */
+
+CREATE VIEW PatientAppointmentView AS
+SELECT
+    p.PatientID,
+    p.PatientName,
+    d.DoctorName,
+    d.Specialization,
+    a.AppointmentDate,
+    a.Status
+FROM Patients p
+JOIN Appointments a
+ON p.PatientID = a.PatientID
+JOIN Doctors d
+ON d.DoctorID = a.DoctorID;
+
+/* ==========================================
+   STORED PROCEDURE
+   ========================================== */
+
+DELIMITER $$
+
+CREATE PROCEDURE GetAppointmentsByDoctor(IN docid INT)
+BEGIN
+    SELECT
+        a.AppointmentID,
+        p.PatientName,
+        a.AppointmentDate,
+        a.AppointmentTime
+    FROM Appointments a
+    JOIN Patients p
+    ON a.PatientID = p.PatientID
+    WHERE a.DoctorID = docid;
+END $$
+
+DELIMITER ;
+
+/* ==========================================
+   FUNCTION
+   ========================================== */
+
+DELIMITER $$
+
+CREATE FUNCTION GetPatientBill(pid INT)
+RETURNS DECIMAL(10,2)
+DETERMINISTIC
+BEGIN
+    DECLARE totalBill DECIMAL(10,2);
+
+    SELECT SUM(Amount)
+    INTO totalBill
+    FROM Bills
+    WHERE PatientID = pid;
+
+    RETURN IFNULL(totalBill,0);
+END $$
+
+DELIMITER ;
+
+/* ==========================================
+   TRIGGER
+   ========================================== */
+
+DELIMITER $$
+
+CREATE TRIGGER CheckBillAmount
+BEFORE INSERT ON Bills
+FOR EACH ROW
+BEGIN
+    IF NEW.Amount <= 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Bill amount must be greater than zero';
+    END IF;
+END $$
+
+DELIMITER ;
+
+/* ==========================================
+   QUERIES
+   ========================================== */
+
+-- 1. Display all doctors
+SELECT * FROM Doctors;
+
+-- 2. Display all patients
+SELECT * FROM Patients;
+
+-- 3. Display appointments
+SELECT * FROM Appointments;
+
+-- 4. Display bills
+SELECT * FROM Bills;
+
+-- 5. Patients with doctor details
+SELECT p.PatientName,
+       d.DoctorName,
+       d.Specialization
+FROM Patients p
+JOIN Appointments a
+ON p.PatientID = a.PatientID
+JOIN Doctors d
+ON d.DoctorID = a.DoctorID;
+
+-- 6. Paid bills
+SELECT *
+FROM Bills
+WHERE PaymentStatus='Paid';
+
+-- 7. Total bill amount per patient
+SELECT PatientID,
+       SUM(Amount) AS TotalAmount
+FROM Bills
+GROUP BY PatientID;
+
+-- 8. Use Function
+SELECT GetPatientBill(1);
+
+-- 9. Use Procedure
+CALL GetAppointmentsByDoctor(1);
+
+-- 10. Use View
+SELECT * FROM PatientAppointmentView;
