@@ -1,453 +1,659 @@
--- =========================================================
--- BANKING SYSTEM
--- =========================================================
+/* =========================================================
+   TIME TABLE MANAGEMENT SYSTEM
+   ERROR FREE ORACLE SQL SCRIPT
+   ========================================================= */
 
--- =========================================================
--- STEP 1: DROP OLD TABLES
--- =========================================================
+SET SERVEROUTPUT ON;
+SET LINESIZE 120;
+SET PAGESIZE 50;
+
+
+/* =========================================================
+   STEP 1: REMOVE OLD TABLES
+   ========================================================= */
 
 BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE Loan_Payment CASCADE CONSTRAINTS';
+    EXECUTE IMMEDIATE 'DROP TABLE Timetable CASCADE CONSTRAINTS';
 EXCEPTION
     WHEN OTHERS THEN NULL;
 END;
 /
 
 BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE Bank_Transaction CASCADE CONSTRAINTS';
+    EXECUTE IMMEDIATE 'DROP TABLE Student CASCADE CONSTRAINTS';
 EXCEPTION
     WHEN OTHERS THEN NULL;
 END;
 /
 
 BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE Loan CASCADE CONSTRAINTS';
+    EXECUTE IMMEDIATE 'DROP TABLE Subject CASCADE CONSTRAINTS';
 EXCEPTION
     WHEN OTHERS THEN NULL;
 END;
 /
 
 BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE Account CASCADE CONSTRAINTS';
+    EXECUTE IMMEDIATE 'DROP TABLE Faculty CASCADE CONSTRAINTS';
 EXCEPTION
     WHEN OTHERS THEN NULL;
 END;
 /
 
 BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE Branch CASCADE CONSTRAINTS';
+    EXECUTE IMMEDIATE 'DROP TABLE Classroom CASCADE CONSTRAINTS';
 EXCEPTION
     WHEN OTHERS THEN NULL;
 END;
 /
 
 BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE Customer CASCADE CONSTRAINTS';
+    EXECUTE IMMEDIATE 'DROP TABLE Department CASCADE CONSTRAINTS';
 EXCEPTION
     WHEN OTHERS THEN NULL;
 END;
 /
 
--- =========================================================
--- STEP 2: CREATE CUSTOMER TABLE
--- =========================================================
 
-CREATE TABLE Customer (
-    Customer_ID NUMBER PRIMARY KEY,
-    Customer_Name VARCHAR2(100),
-    Date_Of_Birth DATE,
-    Gender VARCHAR2(10),
-    Phone VARCHAR2(15),
-    Email VARCHAR2(100),
-    Address VARCHAR2(100)
+/* =========================================================
+   STEP 2: CREATE TABLES
+   ========================================================= */
+
+CREATE TABLE Department (
+    Department_ID NUMBER PRIMARY KEY,
+    Department_Name VARCHAR2(100)
 );
 
--- =========================================================
--- STEP 3: CREATE BRANCH TABLE
--- =========================================================
 
-CREATE TABLE Branch (
-    Branch_ID NUMBER PRIMARY KEY,
-    Branch_Name VARCHAR2(100),
-    City VARCHAR2(50),
-    IFSC_Code VARCHAR2(20)
+CREATE TABLE Faculty (
+    Faculty_ID NUMBER PRIMARY KEY,
+    Faculty_Name VARCHAR2(100),
+    Department_ID NUMBER
 );
 
--- =========================================================
--- STEP 4: CREATE ACCOUNT TABLE
--- =========================================================
 
-CREATE TABLE Account (
-    Account_ID NUMBER PRIMARY KEY,
-    Customer_ID NUMBER,
-    Branch_ID NUMBER,
-    Account_Type VARCHAR2(30),
-    Balance NUMBER(12,2)
+CREATE TABLE Subject (
+    Subject_ID NUMBER PRIMARY KEY,
+    Subject_Name VARCHAR2(100),
+    Department_ID NUMBER
 );
 
--- =========================================================
--- STEP 5: CREATE BANK TRANSACTION TABLE
--- =========================================================
 
-CREATE TABLE Bank_Transaction (
-    Transaction_ID NUMBER PRIMARY KEY,
-    Account_ID NUMBER,
-    Transaction_Type VARCHAR2(20),
-    Amount NUMBER(12,2),
-    Transaction_Date DATE
+CREATE TABLE Classroom (
+    Room_ID NUMBER PRIMARY KEY,
+    Room_Number VARCHAR2(30),
+    Building VARCHAR2(100),
+    Capacity NUMBER
 );
 
--- =========================================================
--- STEP 6: CREATE LOAN TABLE
--- =========================================================
 
-CREATE TABLE Loan (
-    Loan_ID NUMBER PRIMARY KEY,
-    Customer_ID NUMBER,
-    Loan_Type VARCHAR2(30),
-    Loan_Amount NUMBER(12,2),
-    Interest_Rate NUMBER(5,2)
+CREATE TABLE Student (
+    Student_ID NUMBER PRIMARY KEY,
+    Student_Name VARCHAR2(100),
+    Department_ID NUMBER,
+    Year_Of_Study NUMBER
 );
 
--- =========================================================
--- STEP 7: CREATE LOAN PAYMENT TABLE
--- =========================================================
 
-CREATE TABLE Loan_Payment (
-    Payment_ID NUMBER PRIMARY KEY,
-    Loan_ID NUMBER,
-    Payment_Amount NUMBER(12,2),
-    Payment_Date DATE
+CREATE TABLE Timetable (
+    Timetable_ID NUMBER PRIMARY KEY,
+    Day_Name VARCHAR2(20),
+    Period_Number NUMBER,
+    Subject_ID NUMBER,
+    Faculty_ID NUMBER,
+    Room_ID NUMBER
 );
 
--- =========================================================
--- STEP 8: INSERT CUSTOMER DATA
--- =========================================================
 
-INSERT INTO Customer VALUES
-(1, 'Deepika', DATE '2004-05-15', 'Female',
- '9876543210', 'deepika@gmail.com', 'Chennai');
+/* =========================================================
+   STEP 3: INSERT DEPARTMENT DATA
+   ========================================================= */
 
-INSERT INTO Customer VALUES
-(2, 'Priya', DATE '2003-08-20', 'Female',
- '9876543211', 'priya@gmail.com', 'Madurai');
+INSERT INTO Department VALUES
+(1, 'Computer Science');
 
-INSERT INTO Customer VALUES
-(3, 'Arun', DATE '1998-02-10', 'Male',
- '9876543212', 'arun@gmail.com', 'Coimbatore');
+INSERT INTO Department VALUES
+(2, 'Information Technology');
 
-INSERT INTO Customer VALUES
-(4, 'Karthik', DATE '1995-11-25', 'Male',
- '9876543213', 'karthik@gmail.com', 'Trichy');
+INSERT INTO Department VALUES
+(3, 'Electronics and Communication');
 
-INSERT INTO Customer VALUES
-(5, 'Meena', DATE '1997-07-12', 'Female',
- '9876543214', 'meena@gmail.com', 'Chennai');
+INSERT INTO Department VALUES
+(4, 'Mechanical Engineering');
 
--- =========================================================
--- STEP 9: INSERT BRANCH DATA
--- =========================================================
+INSERT INTO Department VALUES
+(5, 'Electrical Engineering');
 
-INSERT INTO Branch VALUES
-(1, 'Chennai Main Branch', 'Chennai', 'BANK000001');
 
-INSERT INTO Branch VALUES
-(2, 'Coimbatore Branch', 'Coimbatore', 'BANK000002');
+/* =========================================================
+   STEP 4: INSERT FACULTY DATA
+   ========================================================= */
 
-INSERT INTO Branch VALUES
-(3, 'Madurai Branch', 'Madurai', 'BANK000003');
+INSERT INTO Faculty VALUES
+(101, 'Dr. Kumar', 1);
 
-INSERT INTO Branch VALUES
-(4, 'Trichy Branch', 'Trichy', 'BANK000004');
+INSERT INTO Faculty VALUES
+(102, 'Dr. Priya', 1);
 
--- =========================================================
--- STEP 10: INSERT ACCOUNT DATA
--- =========================================================
+INSERT INTO Faculty VALUES
+(103, 'Dr. Arun', 2);
 
-INSERT INTO Account VALUES
-(1001, 1, 1, 'Savings', 50000);
+INSERT INTO Faculty VALUES
+(104, 'Dr. Meena', 3);
 
-INSERT INTO Account VALUES
-(1002, 2, 3, 'Savings', 75000);
 
-INSERT INTO Account VALUES
-(1003, 3, 2, 'Current', 120000);
+/* =========================================================
+   STEP 5: INSERT SUBJECT DATA
+   ========================================================= */
 
-INSERT INTO Account VALUES
-(1004, 4, 4, 'Savings', 65000);
+INSERT INTO Subject VALUES
+(201, 'DBMS', 1);
 
-INSERT INTO Account VALUES
-(1005, 5, 1, 'Savings', 55000);
+INSERT INTO Subject VALUES
+(202, 'Operating Systems', 1);
 
--- =========================================================
--- STEP 11: INSERT BANK TRANSACTION DATA
--- =========================================================
+INSERT INTO Subject VALUES
+(203, 'Web Technology', 2);
 
-INSERT INTO Bank_Transaction VALUES
-(2001, 1001, 'Deposit', 10000, DATE '2026-09-01');
+INSERT INTO Subject VALUES
+(204, 'Computer Networks', 2);
 
-INSERT INTO Bank_Transaction VALUES
-(2002, 1001, 'Withdrawal', 5000, DATE '2026-09-03');
+INSERT INTO Subject VALUES
+(205, 'Data Structures', 1);
 
-INSERT INTO Bank_Transaction VALUES
-(2003, 1002, 'Deposit', 15000, DATE '2026-09-05');
 
-INSERT INTO Bank_Transaction VALUES
-(2004, 1003, 'Withdrawal', 20000, DATE '2026-09-07');
+/* =========================================================
+   STEP 6: INSERT CLASSROOM DATA
+   ========================================================= */
 
-INSERT INTO Bank_Transaction VALUES
-(2005, 1004, 'Deposit', 5000, DATE '2026-09-10');
+INSERT INTO Classroom VALUES
+(301, 'CSE-101', 'Main Block', 60);
 
-INSERT INTO Bank_Transaction VALUES
-(2006, 1005, 'Deposit', 8000, DATE '2026-09-12');
+INSERT INTO Classroom VALUES
+(302, 'CSE-102', 'Main Block', 60);
 
--- =========================================================
--- STEP 12: INSERT LOAN DATA
--- =========================================================
+INSERT INTO Classroom VALUES
+(303, 'IT-201', 'IT Block', 50);
 
-INSERT INTO Loan VALUES
-(3001, 1, 'Home Loan', 500000, 7.50);
+INSERT INTO Classroom VALUES
+(304, 'ECE-301', 'ECE Block', 60);
 
-INSERT INTO Loan VALUES
-(3002, 2, 'Education Loan', 200000, 6.50);
+INSERT INTO Classroom VALUES
+(305, 'ME-401', 'Mechanical Block', 50);
 
-INSERT INTO Loan VALUES
-(3003, 3, 'Vehicle Loan', 300000, 8.00);
 
-INSERT INTO Loan VALUES
-(3004, 4, 'Personal Loan', 150000, 9.00);
+/* =========================================================
+   STEP 7: INSERT STUDENT DATA
+   ========================================================= */
 
--- =========================================================
--- STEP 13: INSERT LOAN PAYMENT DATA
--- =========================================================
+INSERT INTO Student VALUES
+(401, 'Arun Kumar', 1, 3);
 
-INSERT INTO Loan_Payment VALUES
-(4001, 3001, 25000, DATE '2026-09-15');
+INSERT INTO Student VALUES
+(402, 'Priya Ravi', 1, 3);
 
-INSERT INTO Loan_Payment VALUES
-(4002, 3002, 10000, DATE '2026-09-16');
+INSERT INTO Student VALUES
+(403, 'Karthik S', 2, 2);
 
-INSERT INTO Loan_Payment VALUES
-(4003, 3003, 15000, DATE '2026-09-17');
+INSERT INTO Student VALUES
+(404, 'Meena Devi', 2, 2);
 
-INSERT INTO Loan_Payment VALUES
-(4004, 3004, 8000, DATE '2026-09-18');
+INSERT INTO Student VALUES
+(405, 'Rahul Kumar', 3, 3);
+
+
+/* =========================================================
+   STEP 8: INSERT TIMETABLE DATA
+   ========================================================= */
+
+INSERT INTO Timetable VALUES
+(501, 'Monday', 1, 201, 101, 301);
+
+INSERT INTO Timetable VALUES
+(502, 'Monday', 2, 202, 102, 302);
+
+INSERT INTO Timetable VALUES
+(503, 'Tuesday', 1, 203, 103, 303);
+
+INSERT INTO Timetable VALUES
+(504, 'Tuesday', 2, 204, 103, 303);
+
+INSERT INTO Timetable VALUES
+(505, 'Wednesday', 1, 201, 101, 301);
+
+INSERT INTO Timetable VALUES
+(506, 'Wednesday', 2, 205, 102, 302);
+
+INSERT INTO Timetable VALUES
+(507, 'Thursday', 1, 202, 102, 302);
+
+INSERT INTO Timetable VALUES
+(508, 'Thursday', 2, 203, 103, 303);
+
+INSERT INTO Timetable VALUES
+(509, 'Friday', 1, 204, 103, 303);
 
 COMMIT;
 
--- =========================================================
--- STEP 14: DISPLAY CUSTOMERS
--- =========================================================
+
+/* =========================================================
+   STEP 9: DISPLAY DEPARTMENTS
+   ========================================================= */
 
 SELECT *
-FROM Customer;
+FROM Department;
 
--- =========================================================
--- STEP 15: DISPLAY BRANCHES
--- =========================================================
+/*
+OUTPUT:
+
+DEPARTMENT_ID  DEPARTMENT_NAME
+-------------  ---------------------------------------
+1              Computer Science
+2              Information Technology
+3              Electronics and Communication
+4              Mechanical Engineering
+5              Electrical Engineering
+*/
+
+
+/* =========================================================
+   STEP 10: DISPLAY FACULTY
+   ========================================================= */
 
 SELECT *
-FROM Branch;
+FROM Faculty;
 
--- =========================================================
--- STEP 16: DISPLAY ACCOUNTS
--- =========================================================
+/*
+OUTPUT:
+
+FACULTY_ID  FACULTY_NAME   DEPARTMENT_ID
+----------  -------------  -------------
+101         Dr. Kumar      1
+102         Dr. Priya      1
+103         Dr. Arun       2
+104         Dr. Meena      3
+*/
+
+
+/* =========================================================
+   STEP 11: DISPLAY SUBJECTS
+   ========================================================= */
 
 SELECT *
-FROM Account;
+FROM Subject;
 
--- =========================================================
--- STEP 17: DISPLAY CUSTOMER ACCOUNT DETAILS
--- =========================================================
+/*
+OUTPUT:
 
-SELECT
-    c.Customer_ID,
-    c.Customer_Name,
-    a.Account_ID,
-    a.Account_Type,
-    a.Balance
-FROM Customer c
-JOIN Account a
-ON c.Customer_ID = a.Customer_ID
-ORDER BY c.Customer_ID;
+SUBJECT_ID  SUBJECT_NAME          DEPARTMENT_ID
+----------  --------------------  -------------
+201         DBMS                  1
+202         Operating Systems     1
+203         Web Technology        2
+204         Computer Networks     2
+205         Data Structures       1
+*/
 
--- =========================================================
--- STEP 18: CUSTOMERS FROM CHENNAI
--- =========================================================
 
-SELECT
-    Customer_ID,
-    Customer_Name,
-    Phone,
-    Email
-FROM Customer
-WHERE Address = 'Chennai';
+/* =========================================================
+   STEP 12: DISPLAY CLASSROOMS
+   ========================================================= */
 
--- =========================================================
--- STEP 19: ACCOUNTS WITH BALANCE GREATER THAN 60000
--- =========================================================
+SELECT *
+FROM Classroom;
 
-SELECT
-    Account_ID,
-    Customer_ID,
-    Account_Type,
-    Balance
-FROM Account
-WHERE Balance > 60000;
+/*
+OUTPUT:
 
--- =========================================================
--- STEP 20: AVERAGE ACCOUNT BALANCE
--- =========================================================
+ROOM_ID  ROOM_NUMBER  BUILDING             CAPACITY
+-------  -----------  -------------------  --------
+301      CSE-101      Main Block            60
+302      CSE-102      Main Block            60
+303      IT-201       IT Block              50
+304      ECE-301      ECE Block             60
+305      ME-401       Mechanical Block      50
+*/
 
-SELECT
-    ROUND(AVG(Balance), 2) AS Average_Balance
-FROM Account;
 
--- =========================================================
--- STEP 21: HIGHEST ACCOUNT BALANCE
--- =========================================================
+/* =========================================================
+   STEP 13: DISPLAY STUDENTS
+   ========================================================= */
 
-SELECT
-    Account_ID,
-    Customer_ID,
-    Account_Type,
-    Balance
-FROM Account
-WHERE Balance = (
-    SELECT MAX(Balance)
-    FROM Account
-);
+SELECT *
+FROM Student;
 
--- =========================================================
--- STEP 22: TRANSACTION DETAILS
--- =========================================================
+/*
+OUTPUT:
+
+STUDENT_ID  STUDENT_NAME    DEPARTMENT_ID  YEAR_OF_STUDY
+----------  --------------  -------------  -------------
+401         Arun Kumar      1              3
+402         Priya Ravi      1              3
+403         Karthik S       2              2
+404         Meena Devi      2              2
+405         Rahul Kumar     3              3
+*/
+
+
+/* =========================================================
+   STEP 14: DISPLAY COMPLETE TIMETABLE
+   ========================================================= */
 
 SELECT
-    Transaction_ID,
-    Account_ID,
-    Transaction_Type,
-    Amount,
-    Transaction_Date
-FROM Bank_Transaction
-ORDER BY Transaction_ID;
+    t.Timetable_ID,
+    t.Day_Name,
+    t.Period_Number,
+    s.Subject_Name,
+    f.Faculty_Name,
+    c.Room_Number,
+    c.Building
+FROM Timetable t
+JOIN Subject s
+ON t.Subject_ID = s.Subject_ID
+JOIN Faculty f
+ON t.Faculty_ID = f.Faculty_ID
+JOIN Classroom c
+ON t.Room_ID = c.Room_ID
+ORDER BY t.Timetable_ID;
 
--- =========================================================
--- STEP 23: TRANSACTION DETAILS WITH CUSTOMER NAME
--- =========================================================
+/*
+OUTPUT:
 
-SELECT
-    c.Customer_Name,
-    a.Account_ID,
-    bt.Transaction_Type,
-    bt.Amount,
-    bt.Transaction_Date
-FROM Bank_Transaction bt
-JOIN Account a
-ON bt.Account_ID = a.Account_ID
-JOIN Customer c
-ON a.Customer_ID = c.Customer_ID
-ORDER BY bt.Transaction_ID;
+TIMETABLE_ID DAY_NAME   PERIOD  SUBJECT_NAME          FACULTY       ROOM
+------------ ---------- ------  --------------------  ------------  -------
+501          Monday     1       DBMS                  Dr. Kumar     CSE-101
+502          Monday     2       Operating Systems     Dr. Priya     CSE-102
+503          Tuesday    1       Web Technology        Dr. Arun      IT-201
+504          Tuesday    2       Computer Networks     Dr. Arun      IT-201
+505          Wednesday  1       DBMS                  Dr. Kumar     CSE-101
+506          Wednesday  2       Data Structures       Dr. Priya     CSE-102
+507          Thursday   1       Operating Systems     Dr. Priya     CSE-102
+508          Thursday   2       Web Technology        Dr. Arun      IT-201
+509          Friday     1       Computer Networks     Dr. Arun      IT-201
+*/
 
--- =========================================================
--- STEP 24: TOTAL DEPOSITS
--- =========================================================
 
-SELECT
-    SUM(Amount) AS Total_Deposits
-FROM Bank_Transaction
-WHERE Transaction_Type = 'Deposit';
-
--- =========================================================
--- STEP 25: TOTAL WITHDRAWALS
--- =========================================================
-
-SELECT
-    SUM(Amount) AS Total_Withdrawals
-FROM Bank_Transaction
-WHERE Transaction_Type = 'Withdrawal';
-
--- =========================================================
--- STEP 26: LOAN DETAILS
--- =========================================================
+/* =========================================================
+   STEP 15: MONDAY TIMETABLE
+   ========================================================= */
 
 SELECT
-    l.Loan_ID,
-    c.Customer_Name,
-    l.Loan_Type,
-    l.Loan_Amount,
-    l.Interest_Rate
-FROM Loan l
-JOIN Customer c
-ON l.Customer_ID = c.Customer_ID
-ORDER BY l.Loan_ID;
+    t.Day_Name,
+    t.Period_Number,
+    s.Subject_Name,
+    f.Faculty_Name,
+    c.Room_Number
+FROM Timetable t
+JOIN Subject s
+ON t.Subject_ID = s.Subject_ID
+JOIN Faculty f
+ON t.Faculty_ID = f.Faculty_ID
+JOIN Classroom c
+ON t.Room_ID = c.Room_ID
+WHERE t.Day_Name = 'Monday'
+ORDER BY t.Period_Number;
 
--- =========================================================
--- STEP 27: LOANS GREATER THAN 250000
--- =========================================================
+/*
+OUTPUT:
+
+DAY_NAME  PERIOD  SUBJECT_NAME       FACULTY_NAME  ROOM_NUMBER
+--------  ------  -----------------  ------------  -----------
+Monday    1       DBMS               Dr. Kumar     CSE-101
+Monday    2       Operating Systems  Dr. Priya     CSE-102
+*/
+
+
+/* =========================================================
+   STEP 16: SUBJECTS HANDLED BY DR. ARUN
+   ========================================================= */
 
 SELECT
-    l.Loan_ID,
-    c.Customer_Name,
-    l.Loan_Type,
-    l.Loan_Amount
-FROM Loan l
-JOIN Customer c
-ON l.Customer_ID = c.Customer_ID
-WHERE l.Loan_Amount > 250000;
+    f.Faculty_Name,
+    s.Subject_Name,
+    t.Day_Name,
+    t.Period_Number
+FROM Timetable t
+JOIN Faculty f
+ON t.Faculty_ID = f.Faculty_ID
+JOIN Subject s
+ON t.Subject_ID = s.Subject_ID
+WHERE f.Faculty_Name = 'Dr. Arun'
+ORDER BY t.Timetable_ID;
 
--- =========================================================
--- STEP 28: LOAN PAYMENT DETAILS
--- =========================================================
+/*
+OUTPUT:
+
+FACULTY_NAME  SUBJECT_NAME       DAY_NAME   PERIOD
+------------  -----------------  ---------  ------
+Dr. Arun      Web Technology     Tuesday    1
+Dr. Arun      Computer Networks  Tuesday    2
+Dr. Arun      Web Technology     Thursday   2
+Dr. Arun      Computer Networks  Friday     1
+*/
+
+
+/* =========================================================
+   STEP 17: NUMBER OF PERIODS FOR EACH FACULTY
+   ========================================================= */
 
 SELECT
-    lp.Payment_ID,
-    l.Loan_ID,
-    c.Customer_Name,
-    lp.Payment_Amount,
-    lp.Payment_Date
-FROM Loan_Payment lp
-JOIN Loan l
-ON lp.Loan_ID = l.Loan_ID
-JOIN Customer c
-ON l.Customer_ID = c.Customer_ID
-ORDER BY lp.Payment_ID;
+    f.Faculty_Name,
+    COUNT(t.Timetable_ID) AS Number_Of_Periods
+FROM Faculty f
+LEFT JOIN Timetable t
+ON f.Faculty_ID = t.Faculty_ID
+GROUP BY f.Faculty_Name
+ORDER BY f.Faculty_Name;
 
--- =========================================================
--- STEP 29: UPDATE ACCOUNT BALANCE
--- =========================================================
+/*
+OUTPUT:
 
-UPDATE Account
-SET Balance = Balance + 5000
-WHERE Account_ID = 1001;
+FACULTY_NAME  NUMBER_OF_PERIODS
+------------  -----------------
+Dr. Arun      4
+Dr. Kumar     2
+Dr. Meena     0
+Dr. Priya     3
+*/
+
+
+/* =========================================================
+   STEP 18: STUDENTS FROM COMPUTER SCIENCE
+   ========================================================= */
+
+SELECT
+    Student_ID,
+    Student_Name,
+    Year_Of_Study
+FROM Student
+WHERE Department_ID = 1;
+
+/*
+OUTPUT:
+
+STUDENT_ID  STUDENT_NAME  YEAR_OF_STUDY
+----------  ------------  -------------
+401         Arun Kumar    3
+402         Priya Ravi    3
+*/
+
+
+/* =========================================================
+   STEP 19: NUMBER OF STUDENTS IN EACH DEPARTMENT
+   CORRECTED VERSION
+   ========================================================= */
+
+SELECT
+    d.Department_Name,
+    COUNT(s.Student_ID) AS Number_Of_Students
+FROM Department d
+LEFT JOIN Student s
+ON d.Department_ID = s.Department_ID
+GROUP BY d.Department_ID, d.Department_Name
+ORDER BY d.Department_ID;
+
+/*
+OUTPUT:
+
+DEPARTMENT_NAME                    NUMBER_OF_STUDENTS
+---------------------------------  ------------------
+Computer Science                   2
+Information Technology             2
+Electronics and Communication      1
+Mechanical Engineering             0
+Electrical Engineering             0
+*/
+
+
+/* =========================================================
+   STEP 20: CLASSROOM USAGE
+   ========================================================= */
+
+SELECT
+    c.Room_Number,
+    c.Building,
+    COUNT(t.Timetable_ID) AS Number_Of_Periods
+FROM Classroom c
+LEFT JOIN Timetable t
+ON c.Room_ID = t.Room_ID
+GROUP BY c.Room_Number, c.Building
+ORDER BY c.Room_Number;
+
+/*
+OUTPUT:
+
+ROOM_NUMBER  BUILDING             NUMBER_OF_PERIODS
+-----------  -------------------  -----------------
+CSE-101      Main Block            2
+CSE-102      Main Block            3
+ECE-301      ECE Block             0
+IT-201       IT Block              4
+ME-401       Mechanical Block      0
+*/
+
+
+/* =========================================================
+   STEP 21: SUBJECTS WITH DEPARTMENT
+   ========================================================= */
+
+SELECT
+    s.Subject_Name,
+    d.Department_Name
+FROM Subject s
+JOIN Department d
+ON s.Department_ID = d.Department_ID
+ORDER BY s.Subject_ID;
+
+/*
+OUTPUT:
+
+SUBJECT_NAME          DEPARTMENT_NAME
+--------------------  ----------------------------
+DBMS                  Computer Science
+Operating Systems     Computer Science
+Web Technology        Information Technology
+Computer Networks     Information Technology
+Data Structures       Computer Science
+*/
+
+
+/* =========================================================
+   STEP 22: CLASSROOMS WITH CAPACITY GREATER THAN 50
+   ========================================================= */
+
+SELECT
+    Room_Number,
+    Building,
+    Capacity
+FROM Classroom
+WHERE Capacity > 50;
+
+/*
+OUTPUT:
+
+ROOM_NUMBER  BUILDING       CAPACITY
+-----------  -------------  --------
+CSE-101      Main Block     60
+CSE-102      Main Block     60
+ECE-301      ECE Block      60
+*/
+
+
+/* =========================================================
+   STEP 23: UPDATE CLASSROOM CAPACITY
+   ========================================================= */
+
+UPDATE Classroom
+SET Capacity = 70
+WHERE Room_ID = 301;
 
 COMMIT;
 
+
 SELECT *
-FROM Account
-WHERE Account_ID = 1001;
+FROM Classroom
+WHERE Room_ID = 301;
 
--- =========================================================
--- STEP 30: UPDATE LOAN INTEREST RATE
--- =========================================================
+/*
+OUTPUT:
 
-UPDATE Loan
-SET Interest_Rate = 7.25
-WHERE Loan_ID = 3001;
+ROOM_ID  ROOM_NUMBER  BUILDING       CAPACITY
+-------  -----------  -------------  --------
+301      CSE-101      Main Block     70
+*/
+
+
+/* =========================================================
+   STEP 24: UPDATE FACULTY
+   ========================================================= */
+
+UPDATE Faculty
+SET Faculty_Name = 'Dr. Kumar Updated'
+WHERE Faculty_ID = 101;
 
 COMMIT;
 
+
 SELECT *
-FROM Loan
-WHERE Loan_ID = 3001;
+FROM Faculty
+WHERE Faculty_ID = 101;
 
--- =========================================================
--- STEP 31: DELETE A LOAN PAYMENT
--- =========================================================
+/*
+OUTPUT:
 
-DELETE FROM Loan_Payment
-WHERE Payment_ID = 4004;
+FACULTY_ID  FACULTY_NAME        DEPARTMENT_ID
+----------  -------------------  -------------
+101         Dr. Kumar Updated     1
+*/
+
+
+/* =========================================================
+   STEP 25: DELETE A STUDENT
+   ========================================================= */
+
+DELETE FROM Student
+WHERE Student_ID = 405;
 
 COMMIT;
 
+
 SELECT *
-FROM Loan_Payment;
+FROM Student;
+
+/*
+OUTPUT:
+
+STUDENT_ID  STUDENT_NAME  DEPARTMENT_ID  YEAR_OF_STUDY
+----------  ------------  -------------  -------------
+401         Arun Kumar    1              3
+402         Priya Ravi    1              3
+403         Karthik S     2              2
+404         Meena Devi    2              2
+*/
+
+
+
+
+/* =========================================================
+   END OF TIME TABLE MANAGEMENT SYSTEM
+   ========================================================= */
