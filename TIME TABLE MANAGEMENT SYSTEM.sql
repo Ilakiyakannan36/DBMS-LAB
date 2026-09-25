@@ -1,562 +1,673 @@
-/* ============================================================
-   DBMS MINI PROJECT
+/* =========================================================
    TIME TABLE MANAGEMENT SYSTEM
-   ============================================================ */
+   ========================================================= */
+
+SET SERVEROUTPUT ON;
+SET LINESIZE 120;
+SET PAGESIZE 50;
 
 
-/* ============================================================
-   1. CREATE DEPARTMENT TABLE
-   ============================================================ */
+/* =========================================================
+   STEP 1: REMOVE OLD TABLES
+   ========================================================= */
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE Timetable CASCADE CONSTRAINTS';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE Student CASCADE CONSTRAINTS';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE Subject CASCADE CONSTRAINTS';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE Faculty CASCADE CONSTRAINTS';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE Classroom CASCADE CONSTRAINTS';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE Department CASCADE CONSTRAINTS';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+
+/* =========================================================
+   STEP 2: CREATE TABLES
+   ========================================================= */
 
 CREATE TABLE Department (
     Department_ID NUMBER PRIMARY KEY,
-    Department_Name VARCHAR2(100) NOT NULL
+    Department_Name VARCHAR2(100)
 );
 
-
-/* ============================================================
-   2. CREATE FACULTY TABLE
-   ============================================================ */
 
 CREATE TABLE Faculty (
     Faculty_ID NUMBER PRIMARY KEY,
-    Faculty_Name VARCHAR2(100) NOT NULL,
-    Department_ID NUMBER,
-    Email VARCHAR2(100),
-    Phone VARCHAR2(15),
-
-    CONSTRAINT fk_faculty_department
-    FOREIGN KEY (Department_ID)
-    REFERENCES Department(Department_ID)
+    Faculty_Name VARCHAR2(100),
+    Department_ID NUMBER
 );
 
-
-/* ============================================================
-   3. CREATE SUBJECT TABLE
-   ============================================================ */
 
 CREATE TABLE Subject (
     Subject_ID NUMBER PRIMARY KEY,
-    Subject_Name VARCHAR2(100) NOT NULL,
-    Subject_Code VARCHAR2(20),
-    Department_ID NUMBER,
-    Semester NUMBER,
-    Credits NUMBER,
-
-    CONSTRAINT fk_subject_department
-    FOREIGN KEY (Department_ID)
-    REFERENCES Department(Department_ID)
+    Subject_Name VARCHAR2(100),
+    Department_ID NUMBER
 );
 
 
-/* ============================================================
-   4. CREATE CLASSROOM TABLE
-   ============================================================ */
-
 CREATE TABLE Classroom (
     Room_ID NUMBER PRIMARY KEY,
-    Room_Number VARCHAR2(20) NOT NULL,
+    Room_Number VARCHAR2(30),
     Building VARCHAR2(100),
     Capacity NUMBER
 );
 
 
-/* ============================================================
-   5. CREATE STUDENT TABLE
-   ============================================================ */
-
 CREATE TABLE Student (
     Student_ID NUMBER PRIMARY KEY,
-    Student_Name VARCHAR2(100) NOT NULL,
+    Student_Name VARCHAR2(100),
     Department_ID NUMBER,
-    Semester NUMBER,
-    Section VARCHAR2(10),
-
-    CONSTRAINT fk_student_department
-    FOREIGN KEY (Department_ID)
-    REFERENCES Department(Department_ID)
+    Year_Of_Study NUMBER
 );
 
-
-/* ============================================================
-   6. CREATE TIMETABLE TABLE
-   ============================================================ */
 
 CREATE TABLE Timetable (
     Timetable_ID NUMBER PRIMARY KEY,
-    Department_ID NUMBER,
-    Subject_ID NUMBER,
-    Faculty_ID NUMBER,
-    Room_ID NUMBER,
     Day_Name VARCHAR2(20),
     Period_Number NUMBER,
-    Start_Time VARCHAR2(10),
-    End_Time VARCHAR2(10),
-
-    CONSTRAINT fk_tt_department
-    FOREIGN KEY (Department_ID)
-    REFERENCES Department(Department_ID),
-
-    CONSTRAINT fk_tt_subject
-    FOREIGN KEY (Subject_ID)
-    REFERENCES Subject(Subject_ID),
-
-    CONSTRAINT fk_tt_faculty
-    FOREIGN KEY (Faculty_ID)
-    REFERENCES Faculty(Faculty_ID),
-
-    CONSTRAINT fk_tt_room
-    FOREIGN KEY (Room_ID)
-    REFERENCES Classroom(Room_ID)
+    Subject_ID NUMBER,
+    Faculty_ID NUMBER,
+    Room_ID NUMBER
 );
 
 
-/* ============================================================
-   7. INSERT DEPARTMENT DATA
-   ============================================================ */
+/* =========================================================
+   STEP 3: INSERT DEPARTMENT DATA
+   ========================================================= */
 
-INSERT INTO Department
-VALUES (1, 'Computer Science');
+INSERT INTO Department VALUES
+(1, 'Computer Science');
 
-INSERT INTO Department
-VALUES (2, 'Information Technology');
+INSERT INTO Department VALUES
+(2, 'Information Technology');
 
-INSERT INTO Department
-VALUES (3, 'Electronics and Communication');
+INSERT INTO Department VALUES
+(3, 'Electronics and Communication');
 
-INSERT INTO Department
-VALUES (4, 'Mechanical Engineering');
+INSERT INTO Department VALUES
+(4, 'Mechanical Engineering');
 
-INSERT INTO Department
-VALUES (5, 'Electrical Engineering');
+INSERT INTO Department VALUES
+(5, 'Electrical Engineering');
 
 
-/* ============================================================
-   8. INSERT FACULTY DATA
-   ============================================================ */
+/* =========================================================
+   STEP 4: INSERT FACULTY DATA
+   ========================================================= */
 
-INSERT INTO Faculty
-VALUES (101, 'Dr. Arun Kumar', 1,
-        'arun@college.edu', '9876543210');
+INSERT INTO Faculty VALUES
+(101, 'Dr. Kumar', 1);
 
-INSERT INTO Faculty
-VALUES (102, 'Mrs. Priya Sharma', 1,
-        'priya@college.edu', '9876543211');
+INSERT INTO Faculty VALUES
+(102, 'Dr. Priya', 1);
 
-INSERT INTO Faculty
-VALUES (103, 'Mr. Rajesh Kumar', 2,
-        'rajesh@college.edu', '9876543212');
+INSERT INTO Faculty VALUES
+(103, 'Dr. Arun', 2);
 
-INSERT INTO Faculty
-VALUES (104, 'Dr. Meena Devi', 3,
-        'meena@college.edu', '9876543213');
+INSERT INTO Faculty VALUES
+(104, 'Dr. Meena', 3);
 
-INSERT INTO Faculty
-VALUES (105, 'Mr. Karthik Raj', 4,
-        'karthik@college.edu', '9876543214');
 
-INSERT INTO Faculty
-VALUES (106, 'Mrs. Anitha Rao', 5,
-        'anitha@college.edu', '9876543215');
+/* =========================================================
+   STEP 5: INSERT SUBJECT DATA
+   ========================================================= */
 
+INSERT INTO Subject VALUES
+(201, 'DBMS', 1);
 
-/* ============================================================
-   9. INSERT SUBJECT DATA
-   ============================================================ */
+INSERT INTO Subject VALUES
+(202, 'Operating Systems', 1);
 
-INSERT INTO Subject
-VALUES (201, 'Database Management Systems',
-        'CS301', 1, 3, 4);
+INSERT INTO Subject VALUES
+(203, 'Web Technology', 2);
 
-INSERT INTO Subject
-VALUES (202, 'Operating Systems',
-        'CS302', 1, 3, 4);
+INSERT INTO Subject VALUES
+(204, 'Computer Networks', 2);
 
-INSERT INTO Subject
-VALUES (203, 'Computer Networks',
-        'CS303', 1, 3, 3);
+INSERT INTO Subject VALUES
+(205, 'Data Structures', 1);
 
-INSERT INTO Subject
-VALUES (204, 'Web Technology',
-        'IT301', 2, 3, 3);
 
-INSERT INTO Subject
-VALUES (205, 'Software Engineering',
-        'IT302', 2, 3, 4);
+/* =========================================================
+   STEP 6: INSERT CLASSROOM DATA
+   ========================================================= */
 
-INSERT INTO Subject
-VALUES (206, 'Digital Electronics',
-        'EC301', 3, 3, 4);
+INSERT INTO Classroom VALUES
+(301, 'CSE-101', 'Main Block', 60);
 
-INSERT INTO Subject
-VALUES (207, 'Engineering Mechanics',
-        'ME301', 4, 3, 4);
+INSERT INTO Classroom VALUES
+(302, 'CSE-102', 'Main Block', 60);
 
-INSERT INTO Subject
-VALUES (208, 'Electrical Machines',
-        'EE301', 5, 3, 4);
+INSERT INTO Classroom VALUES
+(303, 'IT-201', 'IT Block', 50);
 
+INSERT INTO Classroom VALUES
+(304, 'ECE-301', 'ECE Block', 60);
 
-/* ============================================================
-   10. INSERT CLASSROOM DATA
-   ============================================================ */
+INSERT INTO Classroom VALUES
+(305, 'ME-401', 'Mechanical Block', 50);
 
-INSERT INTO Classroom
-VALUES (301, 'CSE-101', 'Main Block', 60);
 
-INSERT INTO Classroom
-VALUES (302, 'CSE-102', 'Main Block', 60);
+/* =========================================================
+   STEP 7: INSERT STUDENT DATA
+   ========================================================= */
 
-INSERT INTO Classroom
-VALUES (303, 'IT-201', 'IT Block', 50);
+INSERT INTO Student VALUES
+(401, 'Arun Kumar', 1, 3);
 
-INSERT INTO Classroom
-VALUES (304, 'ECE-301', 'ECE Block', 60);
+INSERT INTO Student VALUES
+(402, 'Priya Ravi', 1, 3);
 
-INSERT INTO Classroom
-VALUES (305, 'ME-401', 'Mechanical Block', 50);
+INSERT INTO Student VALUES
+(403, 'Karthik S', 2, 2);
 
+INSERT INTO Student VALUES
+(404, 'Meena Devi', 2, 2);
 
-/* ============================================================
-   11. INSERT STUDENT DATA
-   ============================================================ */
+INSERT INTO Student VALUES
+(405, 'Rahul Kumar', 3, 3);
 
-INSERT INTO Student
-VALUES (1001, 'Deepika', 1, 3, 'A');
 
-INSERT INTO Student
-VALUES (1002, 'Priya', 1, 3, 'A');
+/* =========================================================
+   STEP 8: INSERT TIMETABLE DATA
+   ========================================================= */
 
-INSERT INTO Student
-VALUES (1003, 'Karthik', 1, 3, 'A');
+INSERT INTO Timetable VALUES
+(501, 'Monday', 1, 201, 101, 301);
 
-INSERT INTO Student
-VALUES (1004, 'Arun', 2, 3, 'A');
+INSERT INTO Timetable VALUES
+(502, 'Monday', 2, 202, 102, 302);
 
-INSERT INTO Student
-VALUES (1005, 'Meena', 2, 3, 'A');
+INSERT INTO Timetable VALUES
+(503, 'Tuesday', 1, 203, 103, 303);
 
-INSERT INTO Student
-VALUES (1006, 'Rahul', 3, 3, 'A');
+INSERT INTO Timetable VALUES
+(504, 'Tuesday', 2, 204, 103, 303);
 
+INSERT INTO Timetable VALUES
+(505, 'Wednesday', 1, 201, 101, 301);
 
-/* ============================================================
-   12. INSERT TIMETABLE DATA
-   ============================================================ */
+INSERT INTO Timetable VALUES
+(506, 'Wednesday', 2, 205, 102, 302);
 
-/* MONDAY */
+INSERT INTO Timetable VALUES
+(507, 'Thursday', 1, 202, 102, 302);
 
-INSERT INTO Timetable
-VALUES (1, 1, 201, 101, 301,
-        'Monday', 1, '09:00', '10:00');
+INSERT INTO Timetable VALUES
+(508, 'Thursday', 2, 203, 103, 303);
 
-INSERT INTO Timetable
-VALUES (2, 1, 202, 102, 302,
-        'Monday', 2, '10:00', '11:00');
+INSERT INTO Timetable VALUES
+(509, 'Friday', 1, 204, 103, 303);
 
-INSERT INTO Timetable
-VALUES (3, 1, 203, 101, 301,
-        'Monday', 3, '11:15', '12:15');
+COMMIT;
 
 
-/* TUESDAY */
-
-INSERT INTO Timetable
-VALUES (4, 1, 202, 102, 302,
-        'Tuesday', 1, '09:00', '10:00');
-
-INSERT INTO Timetable
-VALUES (5, 1, 201, 101, 301,
-        'Tuesday', 2, '10:00', '11:00');
-
-INSERT INTO Timetable
-VALUES (6, 1, 203, 101, 301,
-        'Tuesday', 4, '01:30', '02:30');
-
-
-/* WEDNESDAY */
-
-INSERT INTO Timetable
-VALUES (7, 1, 203, 101, 301,
-        'Wednesday', 1, '09:00', '10:00');
-
-INSERT INTO Timetable
-VALUES (8, 1, 201, 101, 301,
-        'Wednesday', 2, '10:00', '11:00');
-
-INSERT INTO Timetable
-VALUES (9, 1, 202, 102, 302,
-        'Wednesday', 3, '11:15', '12:15');
-
-
-/* THURSDAY */
-
-INSERT INTO Timetable
-VALUES (10, 1, 201, 101, 301,
-        'Thursday', 1, '09:00', '10:00');
-
-INSERT INTO Timetable
-VALUES (11, 1, 202, 102, 302,
-        'Thursday', 2, '10:00', '11:00');
-
-
-/* FRIDAY */
-
-INSERT INTO Timetable
-VALUES (12, 1, 202, 102, 302,
-        'Friday', 1, '09:00', '10:00');
-
-INSERT INTO Timetable
-VALUES (13, 1, 203, 101, 301,
-        'Friday', 2, '10:00', '11:00');
-
-INSERT INTO Timetable
-VALUES (14, 1, 201, 101, 301,
-        'Friday', 3, '11:15', '12:15');
-
-
-/* ============================================================
-   13. DISPLAY ALL DEPARTMENTS
-   ============================================================ */
+/* =========================================================
+   STEP 9: DISPLAY DEPARTMENTS
+   ========================================================= */
 
 SELECT *
 FROM Department;
 
+/*
+OUTPUT:
 
-/* ============================================================
-   14. DISPLAY ALL FACULTY
-   ============================================================ */
+DEPARTMENT_ID  DEPARTMENT_NAME
+-------------  ---------------------------------------
+1              Computer Science
+2              Information Technology
+3              Electronics and Communication
+4              Mechanical Engineering
+5              Electrical Engineering
+*/
+
+
+/* =========================================================
+   STEP 10: DISPLAY FACULTY
+   ========================================================= */
 
 SELECT *
 FROM Faculty;
 
+/*
+OUTPUT:
 
-/* ============================================================
-   15. DISPLAY ALL SUBJECTS
-   ============================================================ */
+FACULTY_ID  FACULTY_NAME   DEPARTMENT_ID
+----------  -------------  -------------
+101         Dr. Kumar      1
+102         Dr. Priya      1
+103         Dr. Arun       2
+104         Dr. Meena      3
+*/
+
+
+/* =========================================================
+   STEP 11: DISPLAY SUBJECTS
+   ========================================================= */
 
 SELECT *
 FROM Subject;
 
+/*
+OUTPUT:
 
-/* ============================================================
-   16. DISPLAY ALL CLASSROOMS
-   ============================================================ */
+SUBJECT_ID  SUBJECT_NAME          DEPARTMENT_ID
+----------  --------------------  -------------
+201         DBMS                  1
+202         Operating Systems     1
+203         Web Technology        2
+204         Computer Networks     2
+205         Data Structures       1
+*/
+
+
+/* =========================================================
+   STEP 12: DISPLAY CLASSROOMS
+   ========================================================= */
 
 SELECT *
 FROM Classroom;
 
+/*
+OUTPUT:
 
-/* ============================================================
-   17. DISPLAY ALL STUDENTS
-   ============================================================ */
+ROOM_ID  ROOM_NUMBER  BUILDING             CAPACITY
+-------  -----------  -------------------  --------
+301      CSE-101      Main Block            60
+302      CSE-102      Main Block            60
+303      IT-201       IT Block              50
+304      ECE-301      ECE Block             60
+305      ME-401       Mechanical Block      50
+*/
+
+
+/* =========================================================
+   STEP 13: DISPLAY STUDENTS
+   ========================================================= */
 
 SELECT *
 FROM Student;
 
+/*
+OUTPUT:
 
-/* ============================================================
-   18. DISPLAY COMPLETE TIMETABLE
-   ============================================================ */
+STUDENT_ID  STUDENT_NAME    DEPARTMENT_ID  YEAR_OF_STUDY
+----------  --------------  -------------  -------------
+401         Arun Kumar      1              3
+402         Priya Ravi      1              3
+403         Karthik S       2              2
+404         Meena Devi      2              2
+405         Rahul Kumar     3              3
+*/
+
+
+/* =========================================================
+   STEP 14: DISPLAY COMPLETE TIMETABLE
+   ========================================================= */
 
 SELECT
     t.Timetable_ID,
-    d.Department_Name,
-    s.Subject_Name,
-    f.Faculty_Name,
-    c.Room_Number,
     t.Day_Name,
     t.Period_Number,
-    t.Start_Time,
-    t.End_Time
-FROM Timetable t
-JOIN Department d
-    ON t.Department_ID = d.Department_ID
-JOIN Subject s
-    ON t.Subject_ID = s.Subject_ID
-JOIN Faculty f
-    ON t.Faculty_ID = f.Faculty_ID
-JOIN Classroom c
-    ON t.Room_ID = c.Room_ID
-ORDER BY t.Day_Name, t.Period_Number;
-
-
-/* ============================================================
-   19. DISPLAY MONDAY TIMETABLE
-   ============================================================ */
-
-SELECT
     s.Subject_Name,
     f.Faculty_Name,
     c.Room_Number,
-    t.Start_Time,
-    t.End_Time
+    c.Building
 FROM Timetable t
 JOIN Subject s
-    ON t.Subject_ID = s.Subject_ID
+ON t.Subject_ID = s.Subject_ID
 JOIN Faculty f
-    ON t.Faculty_ID = f.Faculty_ID
+ON t.Faculty_ID = f.Faculty_ID
 JOIN Classroom c
-    ON t.Room_ID = c.Room_ID
+ON t.Room_ID = c.Room_ID
+ORDER BY t.Timetable_ID;
+
+/*
+OUTPUT:
+
+TIMETABLE_ID DAY_NAME   PERIOD  SUBJECT_NAME          FACULTY       ROOM
+------------ ---------- ------  --------------------  ------------  -------
+501          Monday     1       DBMS                  Dr. Kumar     CSE-101
+502          Monday     2       Operating Systems     Dr. Priya     CSE-102
+503          Tuesday    1       Web Technology        Dr. Arun      IT-201
+504          Tuesday    2       Computer Networks     Dr. Arun      IT-201
+505          Wednesday  1       DBMS                  Dr. Kumar     CSE-101
+506          Wednesday  2       Data Structures       Dr. Priya     CSE-102
+507          Thursday   1       Operating Systems     Dr. Priya     CSE-102
+508          Thursday   2       Web Technology        Dr. Arun      IT-201
+509          Friday     1       Computer Networks     Dr. Arun      IT-201
+*/
+
+
+/* =========================================================
+   STEP 15: MONDAY TIMETABLE
+   ========================================================= */
+
+SELECT
+    t.Day_Name,
+    t.Period_Number,
+    s.Subject_Name,
+    f.Faculty_Name,
+    c.Room_Number
+FROM Timetable t
+JOIN Subject s
+ON t.Subject_ID = s.Subject_ID
+JOIN Faculty f
+ON t.Faculty_ID = f.Faculty_ID
+JOIN Classroom c
+ON t.Room_ID = c.Room_ID
 WHERE t.Day_Name = 'Monday'
 ORDER BY t.Period_Number;
 
+/*
+OUTPUT:
 
-/* ============================================================
-   20. DISPLAY TIMETABLE FOR COMPUTER SCIENCE
-   ============================================================ */
+DAY_NAME  PERIOD  SUBJECT_NAME       FACULTY_NAME  ROOM_NUMBER
+--------  ------  -----------------  ------------  -----------
+Monday    1       DBMS               Dr. Kumar     CSE-101
+Monday    2       Operating Systems  Dr. Priya     CSE-102
+*/
+
+
+/* =========================================================
+   STEP 16: SUBJECTS HANDLED BY DR. ARUN
+   ========================================================= */
 
 SELECT
-    d.Department_Name,
-    s.Subject_Name,
     f.Faculty_Name,
+    s.Subject_Name,
     t.Day_Name,
-    t.Period_Number,
-    c.Room_Number
+    t.Period_Number
 FROM Timetable t
-JOIN Department d
-    ON t.Department_ID = d.Department_ID
+JOIN Faculty f
+ON t.Faculty_ID = f.Faculty_ID
 JOIN Subject s
-    ON t.Subject_ID = s.Subject_ID
-JOIN Faculty f
-    ON t.Faculty_ID = f.Faculty_ID
-JOIN Classroom c
-    ON t.Room_ID = c.Room_ID
-WHERE d.Department_Name = 'Computer Science'
-ORDER BY t.Day_Name, t.Period_Number;
+ON t.Subject_ID = s.Subject_ID
+WHERE f.Faculty_Name = 'Dr. Arun'
+ORDER BY t.Timetable_ID;
+
+/*
+OUTPUT:
+
+FACULTY_NAME  SUBJECT_NAME       DAY_NAME   PERIOD
+------------  -----------------  ---------  ------
+Dr. Arun      Web Technology     Tuesday    1
+Dr. Arun      Computer Networks  Tuesday    2
+Dr. Arun      Web Technology     Thursday   2
+Dr. Arun      Computer Networks  Friday     1
+*/
 
 
-/* ============================================================
-   21. DISPLAY SUBJECTS WITH FACULTY
-   ============================================================ */
-
-SELECT
-    s.Subject_Code,
-    s.Subject_Name,
-    f.Faculty_Name
-FROM Subject s
-JOIN Faculty f
-    ON s.Department_ID = f.Department_ID;
-
-
-/* ============================================================
-   22. COUNT SUBJECTS IN EACH DEPARTMENT
-   ============================================================ */
-
-SELECT
-    d.Department_Name,
-    COUNT(s.Subject_ID) AS Total_Subjects
-FROM Department d
-LEFT JOIN Subject s
-    ON d.Department_ID = s.Department_ID
-GROUP BY d.Department_Name;
-
-
-/* ============================================================
-   23. COUNT STUDENTS IN EACH DEPARTMENT
-   ============================================================ */
-
-SELECT
-    d.Department_Name,
-    COUNT(st.Student_ID) AS Total_Students
-FROM Department d
-LEFT JOIN Student st
-    ON d.Department_ID = st.Department_ID
-GROUP BY d.Department_Name;
-
-
-/* ============================================================
-   24. DISPLAY FACULTY FROM COMPUTER SCIENCE
-   ============================================================ */
-
-SELECT
-    Faculty_ID,
-    Faculty_Name,
-    Email,
-    Phone
-FROM Faculty
-WHERE Department_ID = 1;
-
-
-/* ============================================================
-   25. DISPLAY SUBJECTS FOR SEMESTER 3
-   ============================================================ */
-
-SELECT
-    Subject_Code,
-    Subject_Name,
-    Credits
-FROM Subject
-WHERE Semester = 3;
-
-
-/* ============================================================
-   26. FIND NUMBER OF PERIODS FOR EACH FACULTY
-   ============================================================ */
+/* =========================================================
+   STEP 17: NUMBER OF PERIODS FOR EACH FACULTY
+   ========================================================= */
 
 SELECT
     f.Faculty_Name,
-    COUNT(t.Timetable_ID) AS Total_Periods
+    COUNT(t.Timetable_ID) AS Number_Of_Periods
 FROM Faculty f
 LEFT JOIN Timetable t
-    ON f.Faculty_ID = t.Faculty_ID
-GROUP BY f.Faculty_Name;
+ON f.Faculty_ID = t.Faculty_ID
+GROUP BY f.Faculty_Name
+ORDER BY f.Faculty_Name;
+
+/*
+OUTPUT:
+
+FACULTY_NAME  NUMBER_OF_PERIODS
+------------  -----------------
+Dr. Arun      4
+Dr. Kumar     2
+Dr. Meena     0
+Dr. Priya     3
+*/
 
 
-/* ============================================================
-   27. FIND CLASSROOM USAGE
-   ============================================================ */
-
-SELECT
-    c.Room_Number,
-    COUNT(t.Timetable_ID) AS Total_Classes
-FROM Classroom c
-LEFT JOIN Timetable t
-    ON c.Room_ID = t.Room_ID
-GROUP BY c.Room_Number;
-
-
-/* ============================================================
-   28. DISPLAY STUDENTS FROM COMPUTER SCIENCE
-   ============================================================ */
+/* =========================================================
+   STEP 18: STUDENTS FROM COMPUTER SCIENCE
+   ========================================================= */
 
 SELECT
     Student_ID,
     Student_Name,
-    Semester,
-    Section
+    Year_Of_Study
 FROM Student
 WHERE Department_ID = 1;
 
+/*
+OUTPUT:
 
-/* ============================================================
-   29. UPDATE FACULTY PHONE NUMBER
-   ============================================================ */
-
-UPDATE Faculty
-SET Phone = '9999999999'
-WHERE Faculty_ID = 101;
-
-
-/* ============================================================
-   30. UPDATE TIMETABLE STATUS BY CHANGING PERIOD
-   ============================================================ */
-
-UPDATE Timetable
-SET Period_Number = 5
-WHERE Timetable_ID = 14;
+STUDENT_ID  STUDENT_NAME  YEAR_OF_STUDY
+----------  ------------  -------------
+401         Arun Kumar    3
+402         Priya Ravi    3
+*/
 
 
-/* ============================================================
-   31. DELETE A STUDENT
-   ============================================================ */
+/* =========================================================
+   STEP 19: NUMBER OF STUDENTS IN EACH DEPARTMENT
+   CORRECTED VERSION
+   ========================================================= */
 
-DELETE FROM Student
-WHERE Student_ID = 1006;
+SELECT
+    d.Department_Name,
+    COUNT(s.Student_ID) AS Number_Of_Students
+FROM Department d
+LEFT JOIN Student s
+ON d.Department_ID = s.Department_ID
+GROUP BY d.Department_ID, d.Department_Name
+ORDER BY d.Department_ID;
+
+/*
+OUTPUT:
+
+DEPARTMENT_NAME                    NUMBER_OF_STUDENTS
+---------------------------------  ------------------
+Computer Science                   2
+Information Technology             2
+Electronics and Communication      1
+Mechanical Engineering             0
+Electrical Engineering             0
+*/
 
 
-/* ============================================================
-   32. COMMIT ALL CHANGES
-   ============================================================ */
+/* =========================================================
+   STEP 20: CLASSROOM USAGE
+   ========================================================= */
+
+SELECT
+    c.Room_Number,
+    c.Building,
+    COUNT(t.Timetable_ID) AS Number_Of_Periods
+FROM Classroom c
+LEFT JOIN Timetable t
+ON c.Room_ID = t.Room_ID
+GROUP BY c.Room_Number, c.Building
+ORDER BY c.Room_Number;
+
+/*
+OUTPUT:
+
+ROOM_NUMBER  BUILDING             NUMBER_OF_PERIODS
+-----------  -------------------  -----------------
+CSE-101      Main Block            2
+CSE-102      Main Block            3
+ECE-301      ECE Block             0
+IT-201       IT Block              4
+ME-401       Mechanical Block      0
+*/
+
+
+/* =========================================================
+   STEP 21: SUBJECTS WITH DEPARTMENT
+   ========================================================= */
+
+SELECT
+    s.Subject_Name,
+    d.Department_Name
+FROM Subject s
+JOIN Department d
+ON s.Department_ID = d.Department_ID
+ORDER BY s.Subject_ID;
+
+/*
+OUTPUT:
+
+SUBJECT_NAME          DEPARTMENT_NAME
+--------------------  ----------------------------
+DBMS                  Computer Science
+Operating Systems     Computer Science
+Web Technology        Information Technology
+Computer Networks     Information Technology
+Data Structures       Computer Science
+*/
+
+
+/* =========================================================
+   STEP 22: CLASSROOMS WITH CAPACITY GREATER THAN 50
+   ========================================================= */
+
+SELECT
+    Room_Number,
+    Building,
+    Capacity
+FROM Classroom
+WHERE Capacity > 50;
+
+/*
+OUTPUT:
+
+ROOM_NUMBER  BUILDING       CAPACITY
+-----------  -------------  --------
+CSE-101      Main Block     60
+CSE-102      Main Block     60
+ECE-301      ECE Block      60
+*/
+
+
+/* =========================================================
+   STEP 23: UPDATE CLASSROOM CAPACITY
+   ========================================================= */
+
+UPDATE Classroom
+SET Capacity = 70
+WHERE Room_ID = 301;
 
 COMMIT;
+
+
+SELECT *
+FROM Classroom
+WHERE Room_ID = 301;
+
+/*
+OUTPUT:
+
+ROOM_ID  ROOM_NUMBER  BUILDING       CAPACITY
+-------  -----------  -------------  --------
+301      CSE-101      Main Block     70
+*/
+
+
+/* =========================================================
+   STEP 24: UPDATE FACULTY
+   ========================================================= */
+
+UPDATE Faculty
+SET Faculty_Name = 'Dr. Kumar Updated'
+WHERE Faculty_ID = 101;
+
+COMMIT;
+
+
+SELECT *
+FROM Faculty
+WHERE Faculty_ID = 101;
+
+/*
+OUTPUT:
+
+FACULTY_ID  FACULTY_NAME        DEPARTMENT_ID
+----------  -------------------  -------------
+101         Dr. Kumar Updated     1
+*/
+
+
+/* =========================================================
+   STEP 25: DELETE A STUDENT
+   ========================================================= */
+
+DELETE FROM Student
+WHERE Student_ID = 405;
+
+COMMIT;
+
+
+SELECT *
+FROM Student;
+
+/*
+OUTPUT:
+
+STUDENT_ID  STUDENT_NAME  DEPARTMENT_ID  YEAR_OF_STUDY
+----------  ------------  -------------  -------------
+401         Arun Kumar    1              3
+402         Priya Ravi    1              3
+403         Karthik S     2              2
+404         Meena Devi    2              2
+*/
+
+
+/* =========================================================
+   FINAL VERIFICATION
+   ========================================================= */
+
+SELECT * FROM Department;
+
+SELECT * FROM Faculty;
+
+SELECT * FROM Subject;
+
+SELECT * FROM Classroom;
+
+SELECT * FROM Student;
+
+SELECT * FROM Timetable;
+
+
+/* =========================================================
+   END OF TIME TABLE MANAGEMENT SYSTEM
+   ========================================================= */
