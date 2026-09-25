@@ -1,0 +1,219 @@
+/* ==========================================
+   RAILWAY RESERVATION SYSTEM
+   ========================================== */
+
+DROP DATABASE IF EXISTS RailwayDB;
+CREATE DATABASE RailwayDB;
+USE RailwayDB;
+
+/* ==========================================
+   TABLE 1 : TRAINS
+   ========================================== */
+
+CREATE TABLE Trains (
+    TrainID INT PRIMARY KEY AUTO_INCREMENT,
+    TrainName VARCHAR(100) NOT NULL,
+    SourceStation VARCHAR(100),
+    DestinationStation VARCHAR(100),
+    TotalSeats INT
+);
+
+/* ==========================================
+   TABLE 2 : PASSENGERS
+   ========================================== */
+
+CREATE TABLE Passengers (
+    PassengerID INT PRIMARY KEY AUTO_INCREMENT,
+    PassengerName VARCHAR(100) NOT NULL,
+    Age INT,
+    Gender VARCHAR(10),
+    Phone VARCHAR(15)
+);
+
+/* ==========================================
+   TABLE 3 : RESERVATIONS
+   ========================================== */
+
+CREATE TABLE Reservations (
+    ReservationID INT PRIMARY KEY AUTO_INCREMENT,
+    PassengerID INT,
+    TrainID INT,
+    JourneyDate DATE,
+    SeatNo VARCHAR(10),
+    TicketStatus VARCHAR(20),
+    FOREIGN KEY (PassengerID)
+    REFERENCES Passengers(PassengerID),
+    FOREIGN KEY (TrainID)
+    REFERENCES Trains(TrainID)
+);
+
+/* ==========================================
+   TABLE 4 : PAYMENTS
+   ========================================== */
+
+CREATE TABLE Payments (
+    PaymentID INT PRIMARY KEY AUTO_INCREMENT,
+    ReservationID INT,
+    Amount DECIMAL(10,2),
+    PaymentDate DATE,
+    PaymentMode VARCHAR(20),
+    FOREIGN KEY (ReservationID)
+    REFERENCES Reservations(ReservationID)
+);
+
+/* ==========================================
+   SAMPLE DATA
+   ========================================== */
+
+INSERT INTO Trains
+(TrainName, SourceStation, DestinationStation, TotalSeats)
+VALUES
+('Chennai Express','Chennai','Mumbai',500),
+('Kanyakumari Express','Chennai','Kanyakumari',400),
+('Tamil Nadu Express','Chennai','Delhi',600);
+
+INSERT INTO Passengers
+(PassengerName, Age, Gender, Phone)
+VALUES
+('Arun',25,'Male','9876543210'),
+('Divya',30,'Female','9876543211'),
+('Rahul',35,'Male','9876543212');
+
+INSERT INTO Reservations
+(PassengerID, TrainID, JourneyDate, SeatNo, TicketStatus)
+VALUES
+(1,1,'2026-10-10','S1-25','Confirmed'),
+(2,2,'2026-10-12','S2-18','Confirmed'),
+(3,3,'2026-10-15','S3-10','Waiting');
+
+INSERT INTO Payments
+(ReservationID, Amount, PaymentDate, PaymentMode)
+VALUES
+(1,850.00,'2026-09-25','UPI'),
+(2,650.00,'2026-09-25','Card'),
+(3,1200.00,'2026-09-25','Net Banking');
+
+/* ==========================================
+   VIEW
+   ========================================== */
+
+CREATE VIEW ReservationDetails AS
+SELECT
+    r.ReservationID,
+    p.PassengerName,
+    t.TrainName,
+    r.JourneyDate,
+    r.SeatNo,
+    r.TicketStatus
+FROM Reservations r
+JOIN Passengers p
+ON r.PassengerID = p.PassengerID
+JOIN Trains t
+ON r.TrainID = t.TrainID;
+
+/* ==========================================
+   STORED PROCEDURE
+   ========================================== */
+
+DELIMITER $$
+
+CREATE PROCEDURE GetTrainPassengers(IN train_id INT)
+BEGIN
+    SELECT
+        p.PassengerName,
+        p.Age,
+        r.SeatNo
+    FROM Passengers p
+    JOIN Reservations r
+    ON p.PassengerID = r.PassengerID
+    WHERE r.TrainID = train_id;
+END $$
+
+DELIMITER ;
+
+/* ==========================================
+   FUNCTION
+   ========================================== */
+
+DELIMITER $$
+
+CREATE FUNCTION GetPaymentAmount(res_id INT)
+RETURNS DECIMAL(10,2)
+DETERMINISTIC
+BEGIN
+    DECLARE amt DECIMAL(10,2);
+
+    SELECT Amount
+    INTO amt
+    FROM Payments
+    WHERE ReservationID = res_id;
+
+    RETURN IFNULL(amt,0);
+END $$
+
+DELIMITER ;
+
+/* ==========================================
+   TRIGGER
+   ========================================== */
+
+DELIMITER $$
+
+CREATE TRIGGER CheckPaymentAmount
+BEFORE INSERT ON Payments
+FOR EACH ROW
+BEGIN
+    IF NEW.Amount <= 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Payment amount must be greater than zero';
+    END IF;
+END $$
+
+DELIMITER ;
+
+/* ==========================================
+   QUERIES
+   ========================================== */
+
+-- 1. Display all trains
+SELECT * FROM Trains;
+
+-- 2. Display all passengers
+SELECT * FROM Passengers;
+
+-- 3. Display all reservations
+SELECT * FROM Reservations;
+
+-- 4. Display all payments
+SELECT * FROM Payments;
+
+-- 5. Passenger reservation details
+SELECT p.PassengerName,
+       t.TrainName,
+       r.SeatNo,
+       r.TicketStatus
+FROM Passengers p
+JOIN Reservations r
+ON p.PassengerID = r.PassengerID
+JOIN Trains t
+ON r.TrainID = t.TrainID;
+
+-- 6. Confirmed tickets
+SELECT *
+FROM Reservations
+WHERE TicketStatus='Confirmed';
+
+-- 7. Number of reservations per train
+SELECT TrainID,
+       COUNT(*) AS TotalReservations
+FROM Reservations
+GROUP BY TrainID;
+
+-- 8. Use Function
+SELECT GetPaymentAmount(1);
+
+-- 9. Use Procedure
+CALL GetTrainPassengers(1);
+
+-- 10. Use View
+SELECT * FROM ReservationDetails;
