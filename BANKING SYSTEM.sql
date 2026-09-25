@@ -1,6 +1,5 @@
 /* =========================================================
    TIME TABLE MANAGEMENT SYSTEM
-   ERROR FREE ORACLE SQL SCRIPT
    ========================================================= */
 
 SET SERVEROUTPUT ON;
