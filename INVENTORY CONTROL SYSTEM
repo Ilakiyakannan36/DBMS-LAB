@@ -1,0 +1,209 @@
+/* ==========================================
+   INVENTORY CONTROL SYSTEM
+   ========================================== */
+
+DROP DATABASE IF EXISTS InventoryDB;
+CREATE DATABASE InventoryDB;
+USE InventoryDB;
+
+/* ==========================================
+   TABLE 1 : SUPPLIERS
+   ========================================== */
+
+CREATE TABLE Suppliers (
+    SupplierID INT PRIMARY KEY AUTO_INCREMENT,
+    SupplierName VARCHAR(100) NOT NULL,
+    ContactPerson VARCHAR(100),
+    Phone VARCHAR(15),
+    Email VARCHAR(100)
+);
+
+/* ==========================================
+   TABLE 2 : MATERIALS
+   ========================================== */
+
+CREATE TABLE Materials (
+    MaterialID INT PRIMARY KEY AUTO_INCREMENT,
+    MaterialName VARCHAR(100) NOT NULL,
+    Unit VARCHAR(20),
+    UnitPrice DECIMAL(10,2),
+    StockQty INT,
+    ReorderLevel INT,
+    SupplierID INT,
+    FOREIGN KEY (SupplierID)
+    REFERENCES Suppliers(SupplierID)
+);
+
+/* ==========================================
+   TABLE 3 : PURCHASE ORDERS
+   ========================================== */
+
+CREATE TABLE PurchaseOrders (
+    OrderID INT PRIMARY KEY AUTO_INCREMENT,
+    MaterialID INT,
+    OrderQty INT,
+    OrderDate DATE,
+    ExpectedDate DATE,
+    Status VARCHAR(20),
+    FOREIGN KEY (MaterialID)
+    REFERENCES Materials(MaterialID)
+);
+
+/* ==========================================
+   TABLE 4 : INVENTORY TRANSACTIONS
+   ========================================== */
+
+CREATE TABLE InventoryTransactions (
+    TransactionID INT PRIMARY KEY AUTO_INCREMENT,
+    MaterialID INT,
+    TransactionType VARCHAR(20),
+    Quantity INT,
+    TransactionDate DATE,
+    FOREIGN KEY (MaterialID)
+    REFERENCES Materials(MaterialID)
+);
+
+/* ==========================================
+   SAMPLE DATA
+   ========================================== */
+
+INSERT INTO Suppliers
+(SupplierName, ContactPerson, Phone, Email)
+VALUES
+('ABC Suppliers','Ramesh','9876543210','abc@gmail.com'),
+('XYZ Traders','Kumar','9876543211','xyz@gmail.com'),
+('Global Materials','Suresh','9876543212','global@gmail.com');
+
+INSERT INTO Materials
+(MaterialName, Unit, UnitPrice, StockQty, ReorderLevel, SupplierID)
+VALUES
+('Steel Rod','Kg',120.00,500,100,1),
+('Cement','Bag',450.00,300,50,2),
+('Bricks','Piece',8.00,2000,500,3),
+('Paint','Litre',250.00,100,20,1);
+
+INSERT INTO PurchaseOrders
+(MaterialID, OrderQty, OrderDate, ExpectedDate, Status)
+VALUES
+(1,100,'2026-09-01','2026-09-05','Delivered'),
+(2,50,'2026-09-02','2026-09-06','Pending'),
+(3,1000,'2026-09-03','2026-09-07','Delivered');
+
+INSERT INTO InventoryTransactions
+(MaterialID, TransactionType, Quantity, TransactionDate)
+VALUES
+(1,'IN',100,'2026-09-05'),
+(2,'OUT',20,'2026-09-06'),
+(3,'IN',500,'2026-09-07'),
+(4,'OUT',10,'2026-09-08');
+
+/* ==========================================
+   VIEW
+   ========================================== */
+
+CREATE VIEW MaterialStockView AS
+SELECT
+    MaterialID,
+    MaterialName,
+    StockQty,
+    ReorderLevel
+FROM Materials;
+
+/* ==========================================
+   STORED PROCEDURE
+   ========================================== */
+
+DELIMITER $$
+
+CREATE PROCEDURE GetLowStockMaterials()
+BEGIN
+    SELECT *
+    FROM Materials
+    WHERE StockQty <= ReorderLevel;
+END $$
+
+DELIMITER ;
+
+/* ==========================================
+   FUNCTION
+   ========================================== */
+
+DELIMITER $$
+
+CREATE FUNCTION CalculateStockValue(mid INT)
+RETURNS DECIMAL(12,2)
+DETERMINISTIC
+BEGIN
+    DECLARE totalValue DECIMAL(12,2);
+
+    SELECT StockQty * UnitPrice
+    INTO totalValue
+    FROM Materials
+    WHERE MaterialID = mid;
+
+    RETURN totalValue;
+END $$
+
+DELIMITER ;
+
+/* ==========================================
+   TRIGGER
+   ========================================== */
+
+DELIMITER $$
+
+CREATE TRIGGER UpdateStockAfterPurchase
+AFTER INSERT ON PurchaseOrders
+FOR EACH ROW
+BEGIN
+    UPDATE Materials
+    SET StockQty = StockQty + NEW.OrderQty
+    WHERE MaterialID = NEW.MaterialID;
+END $$
+
+DELIMITER ;
+
+/* ==========================================
+   QUERIES
+   ========================================== */
+
+-- 1. Display all materials
+SELECT * FROM Materials;
+
+-- 2. Display all suppliers
+SELECT * FROM Suppliers;
+
+-- 3. Materials with supplier details
+SELECT m.MaterialName,
+       m.StockQty,
+       s.SupplierName
+FROM Materials m
+JOIN Suppliers s
+ON m.SupplierID = s.SupplierID;
+
+-- 4. Low stock materials
+SELECT *
+FROM Materials
+WHERE StockQty <= ReorderLevel;
+
+-- 5. Purchase orders
+SELECT * FROM PurchaseOrders;
+
+-- 6. Inventory transactions
+SELECT * FROM InventoryTransactions;
+
+-- 7. Total stock value
+SELECT MaterialName,
+       StockQty,
+       UnitPrice,
+       StockQty * UnitPrice AS TotalValue
+FROM Materials;
+
+-- 8. Use Function
+SELECT CalculateStockValue(1);
+
+-- 9. Use Procedure
+CALL GetLowStockMaterials();
+
+-- 10. Use View
+SELECT * FROM MaterialStockView;
