@@ -2,20 +2,16 @@
    RAILWAY RESERVATION SYSTEM
    ========================================== */
 
-DROP DATABASE IF EXISTS RailwayDB;
-CREATE DATABASE RailwayDB;
-USE RailwayDB;
-
 /* ==========================================
    TABLE 1 : TRAINS
    ========================================== */
 
 CREATE TABLE Trains (
-    TrainID INT PRIMARY KEY AUTO_INCREMENT,
-    TrainName VARCHAR(100) NOT NULL,
-    SourceStation VARCHAR(100),
-    DestinationStation VARCHAR(100),
-    TotalSeats INT
+    TrainID NUMBER PRIMARY KEY,
+    TrainName VARCHAR2(100),
+    SourceStation VARCHAR2(50),
+    DestinationStation VARCHAR2(50),
+    TotalSeats NUMBER
 );
 
 /* ==========================================
@@ -23,11 +19,11 @@ CREATE TABLE Trains (
    ========================================== */
 
 CREATE TABLE Passengers (
-    PassengerID INT PRIMARY KEY AUTO_INCREMENT,
-    PassengerName VARCHAR(100) NOT NULL,
-    Age INT,
-    Gender VARCHAR(10),
-    Phone VARCHAR(15)
+    PassengerID NUMBER PRIMARY KEY,
+    PassengerName VARCHAR2(100),
+    Age NUMBER,
+    Gender VARCHAR2(10),
+    Phone VARCHAR2(15)
 );
 
 /* ==========================================
@@ -35,63 +31,60 @@ CREATE TABLE Passengers (
    ========================================== */
 
 CREATE TABLE Reservations (
-    ReservationID INT PRIMARY KEY AUTO_INCREMENT,
-    PassengerID INT,
-    TrainID INT,
+    ReservationID NUMBER PRIMARY KEY,
+    PassengerID NUMBER,
+    TrainID NUMBER,
     JourneyDate DATE,
-    SeatNo VARCHAR(10),
-    TicketStatus VARCHAR(20),
+    SeatNumber VARCHAR2(10),
+    TicketStatus VARCHAR2(20),
+
+    CONSTRAINT fk_passenger
     FOREIGN KEY (PassengerID)
     REFERENCES Passengers(PassengerID),
+
+    CONSTRAINT fk_train
     FOREIGN KEY (TrainID)
     REFERENCES Trains(TrainID)
 );
 
 /* ==========================================
-   TABLE 4 : PAYMENTS
+   INSERT DATA INTO TRAINS
    ========================================== */
 
-CREATE TABLE Payments (
-    PaymentID INT PRIMARY KEY AUTO_INCREMENT,
-    ReservationID INT,
-    Amount DECIMAL(10,2),
-    PaymentDate DATE,
-    PaymentMode VARCHAR(20),
-    FOREIGN KEY (ReservationID)
-    REFERENCES Reservations(ReservationID)
-);
+INSERT INTO Trains VALUES
+(101,'Chennai Express','Chennai','Mumbai',500);
+
+INSERT INTO Trains VALUES
+(102,'Vaigai Express','Chennai','Madurai',400);
+
+INSERT INTO Trains VALUES
+(103,'Shatabdi Express','Bangalore','Chennai',300);
 
 /* ==========================================
-   SAMPLE DATA
+   INSERT DATA INTO PASSENGERS
    ========================================== */
 
-INSERT INTO Trains
-(TrainName, SourceStation, DestinationStation, TotalSeats)
-VALUES
-('Chennai Express','Chennai','Mumbai',500),
-('Kanyakumari Express','Chennai','Kanyakumari',400),
-('Tamil Nadu Express','Chennai','Delhi',600);
+INSERT INTO Passengers VALUES
+(1,'Arun',25,'Male','9876543210');
 
-INSERT INTO Passengers
-(PassengerName, Age, Gender, Phone)
-VALUES
-('Arun',25,'Male','9876543210'),
-('Divya',30,'Female','9876543211'),
-('Rahul',35,'Male','9876543212');
+INSERT INTO Passengers VALUES
+(2,'Divya',30,'Female','9876543211');
 
-INSERT INTO Reservations
-(PassengerID, TrainID, JourneyDate, SeatNo, TicketStatus)
-VALUES
-(1,1,'2026-10-10','S1-25','Confirmed'),
-(2,2,'2026-10-12','S2-18','Confirmed'),
-(3,3,'2026-10-15','S3-10','Waiting');
+INSERT INTO Passengers VALUES
+(3,'Rahul',40,'Male','9876543212');
 
-INSERT INTO Payments
-(ReservationID, Amount, PaymentDate, PaymentMode)
-VALUES
-(1,850.00,'2026-09-25','UPI'),
-(2,650.00,'2026-09-25','Card'),
-(3,1200.00,'2026-09-25','Net Banking');
+/* ==========================================
+   INSERT DATA INTO RESERVATIONS
+   ========================================== */
+
+INSERT INTO Reservations VALUES
+(1001,1,101,DATE '2026-10-10','S1-25','Confirmed');
+
+INSERT INTO Reservations VALUES
+(1002,2,102,DATE '2026-10-12','S2-18','Confirmed');
+
+INSERT INTO Reservations VALUES
+(1003,3,103,DATE '2026-10-15','S3-10','Waiting');
 
 /* ==========================================
    VIEW
@@ -103,7 +96,7 @@ SELECT
     p.PassengerName,
     t.TrainName,
     r.JourneyDate,
-    r.SeatNo,
+    r.SeatNumber,
     r.TicketStatus
 FROM Reservations r
 JOIN Passengers p
@@ -112,67 +105,7 @@ JOIN Trains t
 ON r.TrainID = t.TrainID;
 
 /* ==========================================
-   STORED PROCEDURE
-   ========================================== */
-
-DELIMITER $$
-
-CREATE PROCEDURE GetTrainPassengers(IN train_id INT)
-BEGIN
-    SELECT
-        p.PassengerName,
-        p.Age,
-        r.SeatNo
-    FROM Passengers p
-    JOIN Reservations r
-    ON p.PassengerID = r.PassengerID
-    WHERE r.TrainID = train_id;
-END $$
-
-DELIMITER ;
-
-/* ==========================================
-   FUNCTION
-   ========================================== */
-
-DELIMITER $$
-
-CREATE FUNCTION GetPaymentAmount(res_id INT)
-RETURNS DECIMAL(10,2)
-DETERMINISTIC
-BEGIN
-    DECLARE amt DECIMAL(10,2);
-
-    SELECT Amount
-    INTO amt
-    FROM Payments
-    WHERE ReservationID = res_id;
-
-    RETURN IFNULL(amt,0);
-END $$
-
-DELIMITER ;
-
-/* ==========================================
-   TRIGGER
-   ========================================== */
-
-DELIMITER $$
-
-CREATE TRIGGER CheckPaymentAmount
-BEFORE INSERT ON Payments
-FOR EACH ROW
-BEGIN
-    IF NEW.Amount <= 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Payment amount must be greater than zero';
-    END IF;
-END $$
-
-DELIMITER ;
-
-/* ==========================================
-   QUERIES
+   SIMPLE QUERIES
    ========================================== */
 
 -- 1. Display all trains
@@ -184,36 +117,51 @@ SELECT * FROM Passengers;
 -- 3. Display all reservations
 SELECT * FROM Reservations;
 
--- 4. Display all payments
-SELECT * FROM Payments;
-
--- 5. Passenger reservation details
-SELECT p.PassengerName,
-       t.TrainName,
-       r.SeatNo,
-       r.TicketStatus
+-- 4. Passenger reservation details
+SELECT
+    p.PassengerName,
+    t.TrainName,
+    r.JourneyDate,
+    r.SeatNumber
 FROM Passengers p
 JOIN Reservations r
 ON p.PassengerID = r.PassengerID
 JOIN Trains t
 ON r.TrainID = t.TrainID;
 
--- 6. Confirmed tickets
+-- 5. Confirmed tickets
 SELECT *
 FROM Reservations
 WHERE TicketStatus='Confirmed';
 
--- 7. Number of reservations per train
-SELECT TrainID,
-       COUNT(*) AS TotalReservations
+-- 6. Waiting list passengers
+SELECT *
+FROM Reservations
+WHERE TicketStatus='Waiting';
+
+-- 7. Count reservations per train
+SELECT
+    TrainID,
+    COUNT(*) AS TotalReservations
 FROM Reservations
 GROUP BY TrainID;
 
--- 8. Use Function
-SELECT GetPaymentAmount(1);
+-- 8. Train details for Chennai route
+SELECT *
+FROM Trains
+WHERE SourceStation='Chennai';
 
--- 9. Use Procedure
-CALL GetTrainPassengers(1);
-
--- 10. Use View
+-- 9. Reservation Details View
 SELECT * FROM ReservationDetails;
+
+-- 10. Passenger and Train Information
+SELECT
+    p.PassengerName,
+    t.TrainName,
+    t.SourceStation,
+    t.DestinationStation
+FROM Passengers p
+JOIN Reservations r
+ON p.PassengerID = r.PassengerID
+JOIN Trains t
+ON r.TrainID = t.TrainID;
