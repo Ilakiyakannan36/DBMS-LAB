@@ -1,7 +1,6 @@
 /* ============================================================
    DBMS MINI PROJECT
-   A. INVENTORY CONTROL SYSTEM
-      MATERIAL REQUIREMENT PROCESSING
+    INVENTORY CONTROL SYSTEM MATERIAL REQUIREMENT PROCESSING
    ============================================================ */
 
 
